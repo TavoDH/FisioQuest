@@ -130,7 +130,7 @@
       </div>
       <div class="module-list" id="moduleList"></div>
 
-      <p class="install-tip">No Android ou iPhone, você pode instalar este protótipo pela opção “Adicionar à tela inicial” do navegador.</p>
+      <p class="install-tip">No Android ou iPhone, você pode instalar este protótipo pela opção "Adicionar à tela inicial" do navegador.</p>
     </section>
 
     <section id="lessonScreen" class="screen">
@@ -267,8 +267,6 @@ const modules = [
   }
 ];
 
-const state];
-
 const state = {
   xp:0, streak:0, level:'Iniciante',
   currentModule:null, currentQuestion:0, correct:0, answered:false, selected:null
@@ -396,9 +394,8 @@ function finishModule(){
   el('earnedXp').textContent = `${earned} XP`;
   el('resultTitle').textContent = percent >= 80 ? 'Ótimo desempenho!' : percent >= 50 ? 'Bom progresso!' : 'Continue praticando!';
   el('resultText').textContent = percent >= 80 ? 'Você demonstrou boa assimilação do conteúdo nesta versão protótipo.' : percent >= 50 ? 'Você está no caminho certo. Repetir a lição ajuda a fixar o conteúdo.' : 'Essa é uma ferramenta de treino. Refazer a atividade pode melhorar seu desempenho.';
-  const progressPercent = 100;
-  el('progressFill').style.width = `${progressPercent}%`;
-  el('progressText').textContent = `${progressPercent}%`;
+  el('progressFill').style.width = '100%';
+  el('progressText').textContent = '100%';
   showScreen('resultScreen');
 }
 
@@ -455,7 +452,7 @@ const manifest = {
   theme_color:'#0d8f67',
   description:'Protótipo gamificado de apoio ao ensino nas ciências da saúde.',
   icons:[
-    {src:'data:image/svg+xml;base64,' + btoa(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128" rx="30" fill="#0d8f67"/><path d="M38 32h52v16H56v18h26v16H56v24H38V32z" fill="#fff"/><circle cx="92" cy="34" r="12" fill="#f2c94c"/></svg>`), sizes:'128x128', type:'image/svg+xml', purpose:'any'}
+    {src:'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128" rx="30" fill="#0d8f67"/><path d="M38 32h52v16H56v18h26v16H56v24H38V32z" fill="#fff"/><circle cx="92" cy="34" r="12" fill="#f2c94c"/></svg>'), sizes:'128x128', type:'image/svg+xml', purpose:'any'}
   ]
 };
 const manifestBlob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
