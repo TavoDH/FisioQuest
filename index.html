@@ -17,6 +17,80 @@
 <canvas id="confettiCanvas"></canvas>
 <div class="app">
 
+  <!-- ONBOARDING (primeiro acesso) -->
+  <div id="onboardingOverlay" class="onboarding-overlay" style="display:none">
+    <div class="onboarding-card">
+      <img src="mascote.png" alt="Mascote FisioQuest" class="onboarding-mascote" />
+      <h2>Bem-vindo ao FisioQuest! 👋</h2>
+      <p>Antes de começar, conta um pouco sobre você.</p>
+
+      <div class="form-group">
+        <label for="inputNome">Seu nome</label>
+        <input type="text" id="inputNome" placeholder="Ex: João Silva" maxlength="40" />
+      </div>
+
+      <div class="form-group">
+        <label>Escolha seu avatar</label>
+        <div class="avatar-grid" id="avatarGrid">
+          <button class="avatar-btn active" data-avatar="🧑‍⚕️">🧑‍⚕️</button>
+          <button class="avatar-btn" data-avatar="👩‍⚕️">👩‍⚕️</button>
+          <button class="avatar-btn" data-avatar="🧑‍🔬">🧑‍🔬</button>
+          <button class="avatar-btn" data-avatar="👩‍🔬">👩‍🔬</button>
+          <button class="avatar-btn" data-avatar="💪">💪</button>
+          <button class="avatar-btn" data-avatar="🩺">🩺</button>
+          <button class="avatar-btn" data-avatar="🧠">🧠</button>
+          <button class="avatar-btn" data-avatar="⚕️">⚕️</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="selectInstituicao">Instituição</label>
+        <select id="selectInstituicao">
+          <option value="">Selecione...</option>
+          <option value="UNIFATEB">UNIFATEB</option>
+          <option value="Outra">Outra instituição</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="selectCurso">Curso</label>
+        <select id="selectCurso">
+          <option value="">Selecione...</option>
+          <option value="Fisioterapia">Fisioterapia</option>
+          <option value="Educação Física">Educação Física</option>
+          <option value="Enfermagem">Enfermagem</option>
+          <option value="Técnico em Enfermagem">Técnico em Enfermagem</option>
+          <option value="Medicina">Medicina</option>
+          <option value="Odontologia">Odontologia</option>
+          <option value="Nutrição">Nutrição</option>
+          <option value="Biomedicina">Biomedicina</option>
+          <option value="Terapia Ocupacional">Terapia Ocupacional</option>
+          <option value="Outro">Outro</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="selectPeriodo">Período</label>
+        <select id="selectPeriodo">
+          <option value="">Selecione...</option>
+          <option value="1º período">1º período</option>
+          <option value="2º período">2º período</option>
+          <option value="3º período">3º período</option>
+          <option value="4º período">4º período</option>
+          <option value="5º período">5º período</option>
+          <option value="6º período">6º período</option>
+          <option value="7º período">7º período</option>
+          <option value="8º período">8º período</option>
+          <option value="9º período">9º período</option>
+          <option value="10º período">10º período</option>
+          <option value="Já formado">Já formado</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" id="onboardingSaveBtn">Começar a jogar 🚀</button>
+    </div>
+  </div>
+
   <header class="topbar">
     <div class="brand" aria-label="FisioQuest">
       <img src="logo.png" alt="Logo FisioQuest" width="40" height="40" style="border-radius:50%;object-fit:cover;" />
@@ -34,6 +108,17 @@
 
     <!-- HOME -->
     <section id="homeScreen" class="screen active">
+
+      <!-- Card de perfil -->
+      <div class="profile-card" id="profileCard">
+        <div class="profile-avatar" id="profileAvatar">🧑‍⚕️</div>
+        <div class="profile-info">
+          <strong id="profileName">Estudante</strong>
+          <span id="profileSub">—</span>
+        </div>
+        <button class="profile-edit-btn" id="profileEditBtn" aria-label="Editar perfil">✏️</button>
+      </div>
+
       <div class="hero">
         <div class="pill">✦ Protótipo educacional • TCC Fisioterapia</div>
         <h1>Aprenda conteúdos da saúde jogando.</h1>
@@ -65,8 +150,8 @@
       <div class="locked-features">
         <div class="locked-item">🏆 Ranking <span class="badge-soon">Em breve</span></div>
         <div class="locked-item">🎖️ Conquistas <span class="badge-soon">Em breve</span></div>
-        <div class="locked-item">👤 Perfil/Login <span class="badge-soon">Em breve</span></div>
         <div class="locked-item">📊 Relatórios <span class="badge-soon">Em breve</span></div>
+        <div class="locked-item">🔔 Notificações <span class="badge-soon">Em breve</span></div>
       </div>
       <p class="install-tip">📱 No celular, use "Adicionar à tela inicial" para instalar o FisioQuest.</p>
     </section>
@@ -93,10 +178,8 @@
         <p class="question-text" id="questionText"></p>
         <div class="answers" id="answers"></div>
 
-        <!-- Placeholder inicial -->
         <p class="feedback-placeholder" id="feedbackPlaceholder">Escolha uma resposta para continuar.</p>
 
-        <!-- Card estruturado (aparece após responder) -->
         <div class="feedback-card" id="feedbackCard">
           <div class="feedback-header">
             <span class="feedback-header-icon" id="feedbackIcon"></span>
