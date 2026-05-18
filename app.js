@@ -1,12 +1,11 @@
-/* FisioQuest — app.js v7
-   + Sistema de níveis numéricos 1-20
-   + Streak de 100% (perfect streak)
-   + Badge de nível no resultado
+/* FisioQuest — app.js v8
+   + Áreas geradas dinamicamente a partir do objeto AREAS
+   + Contador de áreas automático
 */
 
 const QUESTIONS_PER_SESSION = 10;
 
-// ── Tabela de níveis 1–20 ─────────────────────────
+// ── Tabela de níveis 1–20 ─────────────────────
 const LEVEL_TABLE = [
   { level:  1, name: 'Calouro',         min:    0 },
   { level:  2, name: 'Curioso',         min:   80 },
@@ -38,11 +37,10 @@ function getLevelData(xp) {
 function getLevelName(xp) { return getLevelData(xp).name; }
 function getLevelNumber(xp) { return getLevelData(xp).level; }
 
-// XP para o próximo nível (null se já for nível 20)
 function getNextLevelXp(xp) {
   const cur = getLevelData(xp);
   if (cur.level === 20) return null;
-  return LEVEL_TABLE[cur.level].min; // índice = level (nível 2 está em índice 1, etc.)
+  return LEVEL_TABLE[cur.level].min;
 }
 
 let state = {
@@ -193,14 +191,13 @@ function showScreen(id) {
   if (id === 'statsScreen') renderStats();
 }
 
-// ── HUD: mostra Nível X — Nome ─────────────────────
+// ── HUD ───────────────────────────────────────────────
 function updateHUD() {
   const lvl = getLevelData(state.xp);
   document.getElementById('statXp').textContent     = state.xp + ' XP';
   document.getElementById('statStreak').textContent = state.streak;
   document.getElementById('statRank').textContent   = 'Nível ' + lvl.level;
 
-  // Barra de progresso de XP na home
   const nextXp = getNextLevelXp(state.xp);
   const bar    = document.getElementById('xpProgressBar');
   const barPct = document.getElementById('xpProgressPct');
@@ -219,6 +216,39 @@ function updateHUD() {
     if (barPct)  barPct.textContent  = pct + '% para Nível ' + (lvl.level + 1);
     if (barNext) barNext.textContent = (nextXp - state.xp) + ' XP restantes';
   }
+}
+
+// ── ABAS DE ÁREAS (dinâmico) ────────────────────────────
+// Lê o objeto AREAS do questions.js e gera os botões automaticamente.
+// Para adicionar uma nova área, basta incluí-la no questions.js —
+// ela aparecerá aqui sem precisar alterar o HTML.
+function buildAreaTabs() {
+  const tabsEl  = document.getElementById('areaTabs');
+  const countEl = document.getElementById('areaCount');
+  if (!tabsEl || typeof AREAS === 'undefined') return;
+
+  const keys = Object.keys(AREAS);
+  if (countEl) countEl.textContent = keys.length + ' área' + (keys.length !== 1 ? 's' : '') + ' disponível' + (keys.length !== 1 ? 'eis' : '');
+
+  tabsEl.innerHTML = '';
+  let firstKey = null;
+
+  keys.forEach((key, i) => {
+    const area = AREAS[key];
+    const btn  = document.createElement('button');
+    btn.className    = 'area-tab' + (i === 0 ? ' active' : '');
+    btn.dataset.area = key;
+    btn.textContent  = (area.icon || '') + ' ' + area.label;
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.area-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      buildModuleList(key);
+    });
+    tabsEl.appendChild(btn);
+    if (i === 0) firstKey = key;
+  });
+
+  if (firstKey) buildModuleList(firstKey);
 }
 
 function buildModuleList(areaKey) {
@@ -368,7 +398,7 @@ function selectAnswer(btn, chosen, correct) {
   nextBtn.textContent = isLast ? 'Ver resultado →' : 'Próxima →';
 }
 
-// ── Mascote ────────────────────────────────────────
+// ── Mascote ──────────────────────────────────────────────
 function getMascoteFala(pct, perfectStreak) {
   if (pct === 100 && perfectStreak >= 3)
     return `🔥 ${perfectStreak}× PERFEITO consecutivo! Você é imparável!`;
@@ -389,7 +419,7 @@ function animateMascote() {
   img.classList.add('bounce');
 }
 
-// ── Confete ─────────────────────────────────────────
+// ── Confete ─────────────────────────────────────────────────
 function launchConfetti() {
   const canvas = document.getElementById('confettiCanvas');
   if (!canvas) return;
@@ -423,7 +453,7 @@ function launchConfetti() {
   draw();
 }
 
-// ── Revisão de erros ─────────────────────────────────
+// ── Revisão de erros ────────────────────────────────────────────
 function buildReviewPanel(wrongAnswers) {
   const section = document.getElementById('reviewSection');
   const list    = document.getElementById('reviewList');
@@ -452,16 +482,14 @@ function buildReviewPanel(wrongAnswers) {
   });
 }
 
-// ── Resultado ─────────────────────────────────────────
+// ── Resultado ───────────────────────────────────────────────────
 function showResult() {
   const total   = state.questions.length;
   const correct = state.correct;
   const pct     = Math.round((correct / total) * 100);
 
-  // XP base + bônus de 100%
   const xpEarned = correct * 10 + (pct === 100 ? 50 : 0);
 
-  // Perfect streak
   const prevLvl = getLevelData(state.xp).level;
   if (pct === 100) {
     state.perfectStreak++;
@@ -472,19 +500,17 @@ function showResult() {
   state.xp += xpEarned;
   save();
 
-  const newLvl = getLevelData(state.xp).level;
+  const newLvl  = getLevelData(state.xp).level;
   const levelUp = newLvl > prevLvl;
 
   updateHUD();
 
-  // Anel de score
   document.getElementById('scoreRing').style.setProperty('--percent', pct);
   document.getElementById('finalScore').textContent   = pct + '%';
   document.getElementById('correctCount').textContent = `${correct}/${total}`;
   document.getElementById('earnedXp').textContent     = '+' + xpEarned + ' XP';
   document.getElementById('mascoteFala').textContent  = getMascoteFala(pct, state.perfectStreak);
 
-  // Badge de nível no resultado
   const lvl        = getLevelData(state.xp);
   const levelBadge = document.getElementById('resultLevelBadge');
   if (levelBadge) {
@@ -492,7 +518,6 @@ function showResult() {
     levelBadge.className   = 'result-level-badge' + (levelUp ? ' level-up' : '');
   }
 
-  // Badge de perfect streak
   const streakBadge = document.getElementById('resultPerfectStreak');
   if (streakBadge) {
     if (state.perfectStreak >= 2) {
@@ -503,7 +528,6 @@ function showResult() {
     }
   }
 
-  // Texto de result
   let title, text;
   if      (pct === 100) { title = '🏆 Perfeito!';         text = 'Acertou todas! Excelente desempenho!'; }
   else if (pct >= 70)   { title = '🎉 Muito bem!';         text = 'Ótimo resultado. Continue praticando!'; }
@@ -513,7 +537,6 @@ function showResult() {
   document.getElementById('resultTitle').textContent = title;
   document.getElementById('resultText').textContent  = text;
 
-  // Level-up toast
   if (levelUp) showLevelUpToast(lvl);
 
   const area = AREAS[state.currentArea];
@@ -533,7 +556,7 @@ function showResult() {
   if (pct === 100) launchConfetti();
 }
 
-// ── Toast de Level Up ──────────────────────────────────
+// ── Toast de Level Up ────────────────────────────────────────────
 function showLevelUpToast(lvl) {
   let toast = document.getElementById('levelUpToast');
   if (!toast) {
@@ -630,19 +653,13 @@ function renderSessionLog(sessions) {
     </div>`).join('');
 }
 
-// ── Init ──────────────────────────────────────────────
+// ── Init ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   updateHUD();
   initOnboarding();
 
-  document.querySelectorAll('.area-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.area-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      buildModuleList(tab.dataset.area);
-    });
-  });
-  buildModuleList('anatomia');
+  // Gera as abas de áreas automaticamente a partir do AREAS
+  buildAreaTabs();
 
   document.getElementById('nextBtn').addEventListener('click', () => {
     if (!state.answered) return;
