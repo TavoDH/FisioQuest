@@ -129,7 +129,7 @@ const AREAS = {
           {q:'O músculo grácil pertence ao grupo dos:',options:['Extensores do joelho','Adutores da coxa','Abdutores do quadril','Dorsiflexores do tornozelo'],answer:1,explain:'O grácil é um músculo adutor da coxa, localizado na face medial, que também auxilia na flexão do joelho.'},
           {q:'Os músculos fibulares (peroneiros) longo e curto realizam principalmente:',options:['Inversão e dorsiflexão','Eversão do pé e flexão plantar','Extensão dos artelhos','Abdução do quadril'],answer:1,explain:'Os fibulares longo e curto são os principais eversores do pé e auxiliam na flexão plantar.'},
           {q:'Qual músculo da coxa tem origem no trocanter menor do fêmur?',options:['Glúteo máximo','Iliopsoas','Pectíneo','Quadrado femoral'],answer:1,explain:'O iliopsoas insere-se no trocanter menor do fêmur após sua origem na coluna lombar (psoas) e fossa ilíaca (ilíaco).'},
-          {q:'A síndrome do trato iliotibial (banda IT) envolve especialmente qual músculo?',options:['Vasto lateral','Tensor da fáscia lata e glúteo máximo','Sartório','Pectíneo'],answer:1,explain:'A banda iliotibial é uma espessamento da fáscia lata formado pelas inserções do tensor da fáscia lata e glúteo máximo.'},
+          {q:'A síndrome do trato iliotibial (banda IT) envolve especialmente qual músculo?',options:['Vasto lateral','Tensor da fáscia lata e glúteo máximo','Sartório','Pectíneo'],answer:1,explain:'A banda iliotibial é um espessamento da fáscia lata formado pelas inserções do tensor da fáscia lata e glúteo máximo.'},
           {q:'O músculo poplíteo tem como função principal:',options:['Extensão do joelho','Rotação lateral da tíbia com o joelho estendido / desbloqueio do joelho','Flexão plantar','Dorsiflexão'],answer:1,explain:'O poplíteo "desbloqueia" o joelho realizando rotação medial da tíbia (ou lateral do fêmur) para iniciar a flexão.'},
         ]
       },
@@ -180,6 +180,60 @@ const AREAS = {
           {q:'A capacidade vital (CV) representa:',options:['Volume de ar residual nos pulmões','Volume máximo de ar expirado após inspiração máxima','Volume corrente em repouso','Volume de reserva expiratório apenas'],answer:1,explain:'A CV = VRI + VC + VRE, representando o volume máximo de ar que pode ser expirado após uma inspiração máxima.'},
           {q:'Qual músculo acessório da respiração eleva as costelas durante inspiração forçada?',options:['Diafragma','Intercostais internos','Esternocleidomastoideo e escalenos','Reto abdominal'],answer:2,explain:'Na inspiração forçada, o esternocleidomastoideo eleva o esterno e os escalenos elevam as primeiras costelas, ampliando a caixa torácica.'},
           {q:'A pressão parcial de O₂ no ar alveolar é aproximadamente:',options:['21 mmHg','100 mmHg','160 mmHg','40 mmHg'],answer:1,explain:'A pressão parcial de O₂ nos alvéolos é de aproximadamente 100 mmHg, menor que no ar atmosférico (160 mmHg) pelo CO₂ alveolar.'},
+        ]
+      },
+    ]
+  },
+  biomecanica: {
+    label: 'Biomecânica',
+    icon: '⚙️',
+    modules: [
+      {
+        id: 'articulacoes',
+        icon: '🔩',
+        color: '#e8fff4',
+        title: 'Tipos de Articulações',
+        subtitle: 'Classificação, estrutura e mobilidade',
+        questions: [
+          {q:'As articulações são classificadas funcionalmente em:',options:['Fibrosas, cartilaginosas e sinoviais','Sinartroses, anfiartroses e diartroses','Uniaxiais, biaxiais e multiaxiais','Planas, esféricas e em dobradiça'],answer:1,explain:'Funcionalmente: sinartroses (imóveis), anfiartroses (semimóveis) e diartroses (livremente móveis).'},
+          {q:'A articulação sinovial é caracterizada por:',options:['Ausência de cavidade articular','Presença de cavidade articular, líquido sinovial e cápsula fibrosa','União por tecido fibroso denso','Presença apenas de fibrocartilagem'],answer:1,explain:'As diartroses (sinoviais) possuem cavidade articular preenchida por líquido sinovial, cápsula fibrosa e cartilagem hialina nas superfícies.'},
+          {q:'Qual tipo de articulação sinovial permite movimento em todos os planos (multiaxial)?',options:['Dobradiça (gínglimo)','Plana (artródia)','Esférica (enartroses)','Trocoide (pivô)'],answer:2,explain:'A articulação esférica (enartroses), como quadril e ombro, é multiaxial, permitindo movimentos em todos os planos.'},
+          {q:'A articulação do joelho é classificada como:',options:['Articulação plana','Articulação em dobradiça modificada (gínglimo)','Articulação esférica','Articulação em sela'],answer:1,explain:'O joelho é uma articulação em dobradiça modificada (gínglimo), com movimentos predominantes de flexão e extensão no plano sagital.'},
+          {q:'As suturas do crânio são exemplos de:',options:['Diartroses','Anfiartroses','Sinartroses fibrosas','Articulações sinoviais'],answer:2,explain:'As suturas são sinartroses fibrosas — articulações imóveis unidas por tecido fibroso denso, encontradas entre os ossos do crânio.'},
+          {q:'O líquido sinovial tem como principal função:',options:['Produzir cartilagem hialina','Lubrificar e nutrir a cartilagem articular','Conectar ossos por colágeno','Produzir osteoblastos'],answer:1,explain:'O líquido sinovial lubrifica a articulação, reduz o atrito e nutre a cartilagem hialina avascular por difusão.'},
+          {q:'A articulação atlantoaxial (C1-C2) é do tipo:',options:['Esférica','Em sela','Trocoide (pivô)','Dobradiça'],answer:2,explain:'A articulação atlantoaxial é do tipo trocoide (pivô), permitindo rotação axial da cabeça (dizer "não").'},
+          {q:'A articulação carpometacarpal do polegar é do tipo:',options:['Plana','Em sela (selar)','Esférica','Dobradiça'],answer:1,explain:'A articulação carpometacarpal do polegar é em sela (selar), permitindo flexão, extensão, abdução, adução e oposição.'},
+          {q:'A sínfise púbica é classificada como:',options:['Diartrose sinovial','Sinartrose fibrosa','Anfiartroses cartilaginosa (sínfise)','Articulação em dobradiça'],answer:2,explain:'A sínfise púbica é uma anfiartroses cartilaginosa com disco de fibrocartilagem, permitindo pequena mobilidade.'},
+          {q:'O menisco do joelho é composto por:',options:['Cartilagem hialina','Fibrocartilagem','Tecido ósseo esponjoso','Tecido sinovial'],answer:1,explain:'Os meniscos medial e lateral do joelho são formados por fibrocartilagem, aumentando a congruência articular e absorvendo impacto.'},
+          {q:'A articulação do cotovelo (úmero-ulnar) é classificada como:',options:['Esférica','Plana','Dobradiça (gínglimo)','Em sela'],answer:2,explain:'A articulação úmero-ulnar é uma dobradiça (gínglimo) uniaxial, permitindo apenas flexão e extensão.'},
+          {q:'Os ligamentos têm como principal função biomecânica:',options:['Gerar força de contração','Unir osso a músculo','Estabilizar articulações e limitar movimentos excessivos','Produzir líquido sinovial'],answer:2,explain:'Os ligamentos conectam osso a osso, estabilizando as articulações e limitando amplitude excessiva de movimento.'},
+          {q:'Qual estrutura reveste a superfície articular das diartroses, reduzindo o atrito?',options:['Periósteo','Cartilagem hialina','Fibrocartilagem','Membrana sinovial'],answer:1,explain:'A cartilagem hialina reveste as superfícies articulares das diartroses, fornecendo superfície lisa e reduzindo o atrito.'},
+          {q:'A articulação glenoumeral (ombro) sacrifica estabilidade em favor de:',options:['Rigidez','Amplitude de movimento','Resistência à compressão','Produção de líquido sinovial'],answer:1,explain:'O ombro é a articulação mais móvel do corpo; sua rasa cavidade glenoidal sacrifica estabilidade óssea em troca de grande amplitude de movimento.'},
+          {q:'A bursa articular tem como função principal:',options:['Produzir cartilagem','Reduzir o atrito entre tendões/músculos e ossos','Conectar ligamentos','Estabilizar meniscos'],answer:1,explain:'As bursas são sacos com líquido sinovial que reduzem o atrito entre tendões, músculos e proeminências ósseas.'},
+        ]
+      },
+      {
+        id: 'alavancas',
+        icon: '⚖️',
+        color: '#fffbe8',
+        title: 'Alavancas e Forças',
+        subtitle: 'Princípios mecânicos aplicados ao movimento humano',
+        questions: [
+          {q:'Uma alavanca é composta por:',options:['Força, resistência e atrito','Ponto de apoio (fulcro), força (potência) e resistência (carga)','Massa, velocidade e aceleração','Torque, inércia e gravidade'],answer:1,explain:'Toda alavanca possui: fulcro (ponto de apoio), força motora (potência) e resistência (carga a ser movida).'},
+          {q:'Na alavanca de 1ª classe, o fulcro está:',options:['Entre a força e a resistência','Entre o fulcro e a resistência','Na extremidade do sistema','Do mesmo lado da força e resistência'],answer:0,explain:'Na alavanca de 1ª classe (interfixa), o fulcro está entre a força e a resistência. Exemplo: balanço e cabeça sobre a coluna.'},
+          {q:'Qual é o exemplo clássico de alavanca de 2ª classe no corpo humano?',options:['Flexão do cotovelo','Elevação do calcanhar (ponta dos pés)','Extensão do joelho','Flexão do pescoço'],answer:1,explain:'Na elevação do calcanhar, o fulcro é o metatarso, a resistência é o peso corporal e a força é o tríceps sural — alavanca de 2ª classe (interpotente).'},
+          {q:'Na alavanca de 3ª classe, a força está:',options:['Entre a resistência e o fulcro','Entre o fulcro e a resistência','Na extremidade oposta ao fulcro','No mesmo ponto do fulcro'],answer:1,explain:'Na alavanca de 3ª classe (interresistente), a força está entre o fulcro e a resistência. É a mais comum no corpo humano.'},
+          {q:'A flexão do cotovelo pelo bíceps braquial é um exemplo de alavanca de:',options:['1ª classe','2ª classe','3ª classe','Não é uma alavanca'],answer:2,explain:'Na flexão do cotovelo, o fulcro é o cotovelo, a força é o bíceps (entre fulcro e resistência) e a resistência é o antebraço/mão — alavanca de 3ª classe.'},
+          {q:'Torque é definido como:',options:['Força dividida pela distância','Força multiplicada pelo braço de momento (distância perpendicular ao fulcro)','Massa vezes aceleração','Pressão sobre uma superfície'],answer:1,explain:'Torque (momento de força) = Força × Braço de momento. Representa a capacidade de uma força causar rotação em torno de um eixo.'},
+          {q:'Quando o braço de momento muscular aumenta, o torque:',options:['Diminui','Permanece igual','Aumenta','Torna-se zero'],answer:2,explain:'Torque = Força × Braço de momento. Se o braço de momento aumenta com a mesma força, o torque aumenta proporcionalmente.'},
+          {q:'O centro de massa do corpo humano em posição anatômica está aproximadamente:',options:['Na altura do esterno','À altura de S2, anterior ao sacro','No umbigo','Na altura do quadril'],answer:1,explain:'O centro de massa do corpo humano adulto situa-se aproximadamente à altura de S2, levemente anterior ao sacro, variando com a posição.'},
+          {q:'A vantagem mecânica de uma alavanca é calculada como:',options:['Resistência dividida pela força','Braço de momento da força dividido pelo braço de momento da resistência','Força vezes resistência','Torque dividido pela massa'],answer:1,explain:'Vantagem mecânica = Braço de momento da força / Braço de momento da resistência. VM > 1 indica vantagem; VM < 1 indica desvantagem mecânica.'},
+          {q:'A maioria das alavancas musculoesqueléticas do corpo humano apresenta:',options:['Vantagem mecânica (VM > 1)','Desvantagem mecânica (VM < 1), priorizando velocidade e amplitude','Vantagem mecânica neutra (VM = 1)','VM variável sem padrão'],answer:1,explain:'A maioria das alavancas do corpo é de 3ª classe com VM < 1, o que significa desvantagem de força, mas ganho de velocidade e amplitude de movimento.'},
+          {q:'Qual lei de Newton é fundamental para entender o equilíbrio estático no corpo humano?',options:['1ª Lei (inércia)','2ª Lei (F = ma)','3ª Lei (ação e reação)','Lei da gravitação universal'],answer:0,explain:'A 1ª Lei de Newton (inércia) explica o equilíbrio estático: um corpo em repouso permanece em repouso quando a soma das forças e torques é zero.'},
+          {q:'A base de suporte influencia o equilíbrio porque:',options:['Determina a força muscular máxima','Uma base maior aumenta a estabilidade ao manter o centro de massa sobre ela','Reduz o peso corporal','Aumenta o torque muscular'],answer:1,explain:'Quanto maior e mais ampla a base de suporte, mais estável o corpo, pois o centro de massa tem mais área para se manter projetado sobre ela.'},
+          {q:'No movimento angular, a velocidade linear de um ponto é:',options:['Igual à velocidade angular','A velocidade angular dividida pelo raio','A velocidade angular multiplicada pelo raio (v = ω × r)','Independente do raio'],answer:2,explain:'v = ω × r: a velocidade linear aumenta com o raio. Por isso, a mão (maior raio) move-se mais rápido que o cotovelo em rotação do ombro.'},
+          {q:'A força de reação do solo (FRS) durante a marcha normal é aproximadamente:',options:['50% do peso corporal','100% do peso corporal na fase de apoio','120-150% do peso corporal no pico de apoio','300% do peso corporal'],answer:1,explain:'Durante a marcha tranquila, a FRS varia de cerca de 80% a 120% do peso corporal. Na corrida, pode atingir 2-3 vezes o peso corporal.'},
+          {q:'O braço de momento de uma força muscular é a distância:',options:['Entre origem e inserção do músculo','Perpendicular entre a linha de ação da força e o eixo de rotação articular','Entre o músculo e o osso','Do fulcro até a resistência ao longo do segmento'],answer:1,explain:'O braço de momento (lever arm) é a distância perpendicular entre a linha de ação da força e o eixo de rotação — determina o torque produzido.'},
         ]
       },
     ]
