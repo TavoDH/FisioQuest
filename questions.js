@@ -109,6 +109,30 @@ const AREAS = {
           {q:'A vértebra proeminente (C7) é caracterizada por ter:',options:['Processo espinhoso curto e bífido','Processo espinhoso longo e não bífido, palpável','Forame transversário grande','Corpo vertebral menor'],answer:1,explain:'C7 tem processo espinhoso longo, único e proeminente, facilmente palpável na base do pescoço.'},
         ]
       },
+      {
+        id: 'musculos_membro_inferior',
+        icon: '🦵',
+        color: '#f0e8ff',
+        title: 'Músculos do Membro Inferior',
+        subtitle: 'Quadril, coxa, perna e pé',
+        questions: [
+          {q:'Qual é o maior e mais superficial músculo glúteo, responsável pela extensão do quadril?',options:['Glúteo médio','Glúteo mínimo','Glúteo máximo','Piriforme'],answer:2,explain:'O glúteo máximo é o maior músculo do glúteo, principal extensor e rotador lateral do quadril.'},
+          {q:'O músculo iliopsoas é o principal:',options:['Extensor do quadril','Flexor do quadril','Abdutor do quadril','Rotador medial do quadril'],answer:1,explain:'O iliopsoas (ilíaco + psoas maior) é o principal flexor do quadril, com origem na coluna lombar e ilíaco.'},
+          {q:'O quadríceps femoral é composto por quantas porções?',options:['Dois','Três','Quatro','Cinco'],answer:2,explain:'O quadríceps é formado por: reto femoral, vasto lateral, vasto medial e vasto intermédio — quatro porções.'},
+          {q:'A principal função do quadríceps femoral é:',options:['Flexão do joelho','Extensão do joelho','Abdução do quadril','Flexão plantar do tornozelo'],answer:1,explain:'O quadríceps é o principal extensor do joelho, fundamental para marcha, corrida e subida de escadas.'},
+          {q:'Os músculos isquiotibiais são formados por:',options:['Reto femoral, vasto lateral e vasto medial','Bíceps femoral, semitendíneo e semimembranoso','Gastrocnêmio, sóleo e plantar','Glúteo máximo, médio e mínimo'],answer:1,explain:'Os isquiotibiais são: bíceps femoral, semitendíneo e semimembranoso — extensores do quadril e flexores do joelho.'},
+          {q:'Qual músculo é conhecido como "alfaiate" por cruzar o membro de lateral para medial?',options:['Grácil','Sartório','Tensor da fáscia lata','Pectíneo'],answer:1,explain:'O sartório é o músculo mais longo do corpo; cruza obliquamente a coxa e realiza flexão, abdução e rotação lateral do quadril.'},
+          {q:'O tendão de Aquiles é a inserção do(s):',options:['Quadríceps femoral','Isquiotibiais','Tríceps sural (gastrocnêmio + sóleo)','Tibial anterior'],answer:2,explain:'O tendão de Aquiles (calcâneo) é formado pela união dos tendões do gastrocnêmio e do sóleo, inserindo-se no calcâneo.'},
+          {q:'A principal ação do músculo tibial anterior é:',options:['Flexão plantar e eversão','Dorsiflexão e inversão do pé','Flexão dos artelhos','Abdução do hálux'],answer:1,explain:'O tibial anterior realiza dorsiflexão (flexão dorsal) e inversão do pé, sendo o principal músculo da face anterior da perna.'},
+          {q:'O glúteo médio e o glúteo mínimo são os principais responsáveis por:',options:['Extensão e rotação lateral do quadril','Abdução do quadril e estabilização pélvica na marcha','Flexão do joelho','Flexão plantar'],answer:1,explain:'Glúteo médio e mínimo são os principais abdutores do quadril e estabilizam a pelve durante a fase de apoio unipodal na marcha.'},
+          {q:'Qual músculo realiza flexão plantar e é essencial para a propulsão na marcha e corrida?',options:['Tibial anterior','Fibular longo','Gastrocnêmio','Extensor longo dos dedos'],answer:2,explain:'O gastrocnêmio (e o sóleo) realiza flexão plantar com força, sendo essencial para a propulsão durante a marcha e corrida.'},
+          {q:'O músculo grácil pertence ao grupo dos:',options:['Extensores do joelho','Adutores da coxa','Abdutores do quadril','Dorsiflexores do tornozelo'],answer:1,explain:'O grácil é um músculo adutor da coxa, localizado na face medial, que também auxilia na flexão do joelho.'},
+          {q:'Os músculos fibulares (peroneiros) longo e curto realizam principalmente:',options:['Inversão e dorsiflexão','Eversão do pé e flexão plantar','Extensão dos artelhos','Abdução do quadril'],answer:1,explain:'Os fibulares longo e curto são os principais eversores do pé e auxiliam na flexão plantar.'},
+          {q:'Qual músculo da coxa tem origem no trocanter menor do fêmur?',options:['Glúteo máximo','Iliopsoas','Pectíneo','Quadrado femoral'],answer:1,explain:'O iliopsoas insere-se no trocanter menor do fêmur após sua origem na coluna lombar (psoas) e fossa ilíaca (ilíaco).'},
+          {q:'A síndrome do trato iliotibial (banda IT) envolve especialmente qual músculo?',options:['Vasto lateral','Tensor da fáscia lata e glúteo máximo','Sartório','Pectíneo'],answer:1,explain:'A banda iliotibial é uma espessamento da fáscia lata formado pelas inserções do tensor da fáscia lata e glúteo máximo.'},
+          {q:'O músculo poplíteo tem como função principal:',options:['Extensão do joelho','Rotação lateral da tíbia com o joelho estendido / desbloqueio do joelho','Flexão plantar','Dorsiflexão'],answer:1,explain:'O poplíteo "desbloqueia" o joelho realizando rotação medial da tíbia (ou lateral do fêmur) para iniciar a flexão.'},
+        ]
+      },
     ]
   },
   fisiologia: {
@@ -132,6 +156,30 @@ const AREAS = {
           {q:'A frequência cardíaca de repouso em adultos saudáveis é normalmente:',options:['30-50 bpm','60-100 bpm','100-120 bpm','120-150 bpm'],answer:1,explain:'A frequência cardíaca normal de repouso em adultos é de 60 a 100 batimentos por minuto.'},
           {q:'O retorno venoso ao coração é facilitado principalmente por:',options:['Contração cardíaca apenas','Ação da bomba muscular, válvulas venosas e pressão negativa intratorácica','Pressão arterial alta','Vasoconstrição das artérias'],answer:1,explain:'O retorno venoso depende da bomba muscular (contração dos músculos), válvulas venosas que impedem refluxo e pressão negativa na inspiração.'},
           {q:'A resistência vascular periférica total (RVP) influencia principalmente:',options:['Frequência cardíaca','Volume sistólico','Pressão arterial diastólica','Hematócrito'],answer:2,explain:'A RVP é o principal determinante da pressão diastólica. Quando os vasos se contraem (vasoconstrição), a RVP e a pressão diastólica aumentam.'},
+        ]
+      },
+      {
+        id: 'respiratorio',
+        icon: '🫁',
+        color: '#e8f4ff',
+        title: 'Sistema Respiratório',
+        subtitle: 'Ventilação, troca gasosa e mecânica respiratória',
+        questions: [
+          {q:'O principal músculo da inspiração é:',options:['Intercostais internos','Diafragma','Escalenos','Esternocleidomastoideo'],answer:1,explain:'O diafragma é o principal músculo inspiratório, responsável por cerca de 70-80% do volume de ar inspirado.'},
+          {q:'A capacidade pulmonar total (CPT) é a soma de:',options:['Volume corrente e volume de reserva inspiratório','Todos os volumes pulmonares (CV + VR)','Apenas volume corrente e volume residual','Volume de reserva expiratório e volume residual'],answer:1,explain:'A CPT = Capacidade vital (CV) + Volume residual (VR), representando o total de ar nos pulmões após inspiração máxima.'},
+          {q:'A troca gasosa entre alvéolos e capilares pulmonares ocorre por:',options:['Transporte ativo','Osmose','Difusão simples (gradiente de pressão parcial)','Filtração'],answer:2,explain:'O O₂ e CO₂ trocam entre alvéolos e sangue por difusão simples, movendo-se do local de maior para menor pressão parcial.'},
+          {q:'Durante a expiração tranquila (passiva), ocorre:',options:['Contração dos intercostais externos','Contração do diafragma','Relaxamento do diafragma e recuo elástico pulmonar','Aumento do volume torácico'],answer:2,explain:'A expiração tranquila é passiva: o diafragma relaxa e o recuo elástico dos pulmões reduz o volume torácico expulsando o ar.'},
+          {q:'A frequência respiratória normal em adultos em repouso é de:',options:['6-8 irpm','12-20 irpm','25-30 irpm','30-40 irpm'],answer:1,explain:'A frequência respiratória normal em adultos é de 12 a 20 incursões respiratórias por minuto (irpm).'},
+          {q:'O surfactante pulmonar é produzido por:',options:['Células de Clara','Macrófagos alveolares','Pneumócitos tipo II','Células caliciformes'],answer:2,explain:'O surfactante é produzido pelos pneumócitos tipo II (células alveolares tipo II), reduzindo a tensão superficial alveolar e prevenindo o colapso.'},
+          {q:'Qual estrutura divide a traqueia nos brônquios principais direito e esquerdo?',options:['Epiglote','Carina','Glote','Bifurcação aórtica'],answer:1,explain:'A carina (carina traqueal) é a estrutura que divide a traqueia nos brônquios principais direito e esquerdo, em torno de T4-T5.'},
+          {q:'O volume corrente (VC) em adultos em repouso é aproximadamente:',options:['150 mL','500 mL','1200 mL','3000 mL'],answer:1,explain:'O volume corrente normal em repouso é de aproximadamente 500 mL (0,5 L) por incursão respiratória.'},
+          {q:'Hipóxia é definida como:',options:['Excesso de CO₂ no sangue','Redução do O₂ nos tecidos','Aumento do O₂ nos tecidos','Ausência de CO₂ no sangue'],answer:1,explain:'Hipóxia é a redução da oferta ou utilização de oxigênio pelos tecidos, podendo ser hipoxêmica, anêmica, circulatória ou histotóxica.'},
+          {q:'Durante o exercício intenso, a ventilação aumenta principalmente para:',options:['Reduzir a frequência cardíaca','Eliminar o excesso de CO₂ e manter o pH sanguíneo','Aumentar a pressão arterial','Reduzir a temperatura corporal'],answer:1,explain:'O aumento da ventilação no exercício é estimulado pelo acúmulo de CO₂ e queda do pH (acidose), mantendo a homeostase ácido-base.'},
+          {q:'O espaço morto anatômico refere-se a:',options:['Alvéolos sem perfusão sanguínea','Volume de ar nas vias aéreas que não participa da troca gasosa','Pulmão colapsado','Capacidade residual funcional'],answer:1,explain:'O espaço morto anatômico (~150 mL) é o volume de ar que ocupa as vias aéreas condutoras (traqueia, brônquios) sem realizar troca gasosa.'},
+          {q:'A oxiemoglobina é formada quando:',options:['O CO₂ se liga à hemoglobina','O O₂ se liga à hemoglobina nos pulmões','A hemoglobina perde o ferro','O CO se liga à hemoglobina'],answer:1,explain:'Oxiemoglobina (HbO₂) é formada quando o O₂ se liga reversivelmente à hemoglobina nos capilares pulmonares.'},
+          {q:'A capacidade vital (CV) representa:',options:['Volume de ar residual nos pulmões','Volume máximo de ar expirado após inspiração máxima','Volume corrente em repouso','Volume de reserva expiratório apenas'],answer:1,explain:'A CV = VRI + VC + VRE, representando o volume máximo de ar que pode ser expirado após uma inspiração máxima.'},
+          {q:'Qual músculo acessório da respiração eleva as costelas durante inspiração forçada?',options:['Diafragma','Intercostais internos','Esternocleidomastoideo e escalenos','Reto abdominal'],answer:2,explain:'Na inspiração forçada, o esternocleidomastoideo eleva o esterno e os escalenos elevam as primeiras costelas, ampliando a caixa torácica.'},
+          {q:'A pressão parcial de O₂ no ar alveolar é aproximadamente:',options:['21 mmHg','100 mmHg','160 mmHg','40 mmHg'],answer:1,explain:'A pressão parcial de O₂ nos alvéolos é de aproximadamente 100 mmHg, menor que no ar atmosférico (160 mmHg) pelo CO₂ alveolar.'},
         ]
       },
     ]
