@@ -1,21 +1,54 @@
-/* FisioQuest — app.js v6
-   + Onboarding primeiro acesso
-   + Card de perfil na home
+/* FisioQuest — app.js v7
+   + Sistema de níveis numéricos 1-20
+   + Streak de 100% (perfect streak)
+   + Badge de nível no resultado
 */
 
 const QUESTIONS_PER_SESSION = 10;
 
-const LEVELS = [
-  { name: 'Iniciante',    min: 0    },
-  { name: 'Estudante',    min: 100  },
-  { name: 'Residente',    min: 300  },
-  { name: 'Especialista', min: 700  },
-  { name: 'Mestre',       min: 1500 },
+// ── Tabela de níveis 1–20 ─────────────────────────
+const LEVEL_TABLE = [
+  { level:  1, name: 'Calouro',         min:    0 },
+  { level:  2, name: 'Curioso',         min:   80 },
+  { level:  3, name: 'Estudante',       min:  200 },
+  { level:  4, name: 'Dedicado',        min:  380 },
+  { level:  5, name: 'Aplicado',        min:  620 },
+  { level:  6, name: 'Persistente',     min:  940 },
+  { level:  7, name: 'Competente',      min: 1360 },
+  { level:  8, name: 'Habilidoso',      min: 1900 },
+  { level:  9, name: 'Especialista Jr', min: 2580 },
+  { level: 10, name: 'Especialista',    min: 3420 },
+  { level: 11, name: 'Profissional',    min: 4440 },
+  { level: 12, name: 'Avançado',        min: 5660 },
+  { level: 13, name: 'Perito',          min: 7100 },
+  { level: 14, name: 'Expert',          min: 8780 },
+  { level: 15, name: 'Mestre Jr',       min:10720 },
+  { level: 16, name: 'Mestre',          min:12940 },
+  { level: 17, name: 'Mestre Sênior',   min:15460 },
+  { level: 18, name: 'Grão-Mestre',     min:18300 },
+  { level: 19, name: 'Lenda',           min:21480 },
+  { level: 20, name: 'FisioLenda 🏆',   min:25020 },
 ];
 
+function getLevelData(xp) {
+  let data = LEVEL_TABLE[0];
+  for (const l of LEVEL_TABLE) { if (xp >= l.min) data = l; }
+  return data;
+}
+function getLevelName(xp) { return getLevelData(xp).name; }
+function getLevelNumber(xp) { return getLevelData(xp).level; }
+
+// XP para o próximo nível (null se já for nível 20)
+function getNextLevelXp(xp) {
+  const cur = getLevelData(xp);
+  if (cur.level === 20) return null;
+  return LEVEL_TABLE[cur.level].min; // índice = level (nível 2 está em índice 1, etc.)
+}
+
 let state = {
-  xp:     parseInt(localStorage.getItem('fq_xp')     || '0'),
-  streak: parseInt(localStorage.getItem('fq_streak') || '0'),
+  xp:            parseInt(localStorage.getItem('fq_xp')            || '0'),
+  streak:        parseInt(localStorage.getItem('fq_streak')        || '0'),
+  perfectStreak: parseInt(localStorage.getItem('fq_perfectStreak') || '0'),
   currentArea:   null,
   currentModule: null,
   questions:     [],
@@ -37,17 +70,17 @@ function saveProfile(profile) {
 }
 
 function renderProfileCard() {
-  const profile = loadProfile();
-  const nameEl  = document.getElementById('profileName');
-  const subEl   = document.getElementById('profileSub');
+  const profile  = loadProfile();
+  const nameEl   = document.getElementById('profileName');
+  const subEl    = document.getElementById('profileSub');
   const avatarEl = document.getElementById('profileAvatar');
   if (!nameEl) return;
 
   if (profile && profile.nome) {
-    nameEl.textContent  = profile.nome;
+    nameEl.textContent   = profile.nome;
     avatarEl.textContent = profile.avatar || '🧑‍⚕️';
     const parts = [profile.curso, profile.periodo].filter(Boolean);
-    subEl.textContent   = parts.length ? parts.join(' • ') : (profile.instituicao || '—');
+    subEl.textContent    = parts.length ? parts.join(' • ') : (profile.instituicao || '—');
   } else {
     nameEl.textContent   = 'Estudante';
     avatarEl.textContent = '🧑‍⚕️';
@@ -59,14 +92,12 @@ function openOnboarding(prefill) {
   const overlay = document.getElementById('onboardingOverlay');
   overlay.style.display = 'flex';
 
-  // Preenche campos se vier de edição
   const p = prefill || loadProfile() || {};
-  document.getElementById('inputNome').value         = p.nome         || '';
-  document.getElementById('selectInstituicao').value = p.instituicao  || '';
-  document.getElementById('selectCurso').value       = p.curso        || '';
-  document.getElementById('selectPeriodo').value     = p.periodo      || '';
+  document.getElementById('inputNome').value         = p.nome        || '';
+  document.getElementById('selectInstituicao').value = p.instituicao || '';
+  document.getElementById('selectCurso').value       = p.curso       || '';
+  document.getElementById('selectPeriodo').value     = p.periodo     || '';
 
-  // Avatar
   document.querySelectorAll('.avatar-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.avatar === (p.avatar || '🧑‍⚕️'));
   });
@@ -77,12 +108,11 @@ function closeOnboarding() {
 }
 
 function initOnboarding() {
-  const overlay   = document.getElementById('onboardingOverlay');
-  const saveBtn   = document.getElementById('onboardingSaveBtn');
-  const editBtn   = document.getElementById('profileEditBtn');
+  const overlay    = document.getElementById('onboardingOverlay');
+  const saveBtn    = document.getElementById('onboardingSaveBtn');
+  const editBtn    = document.getElementById('profileEditBtn');
   const avatarGrid = document.getElementById('avatarGrid');
 
-  // Seleção de avatar
   avatarGrid.addEventListener('click', (e) => {
     const btn = e.target.closest('.avatar-btn');
     if (!btn) return;
@@ -90,7 +120,6 @@ function initOnboarding() {
     btn.classList.add('active');
   });
 
-  // Salvar perfil
   saveBtn.addEventListener('click', () => {
     const nome = document.getElementById('inputNome').value.trim();
     if (!nome) {
@@ -102,29 +131,23 @@ function initOnboarding() {
     const avatarAtivo = document.querySelector('.avatar-btn.active');
     const profile = {
       nome,
-      avatar:       avatarAtivo ? avatarAtivo.dataset.avatar : '🧑‍⚕️',
-      instituicao:  document.getElementById('selectInstituicao').value,
-      curso:        document.getElementById('selectCurso').value,
-      periodo:      document.getElementById('selectPeriodo').value,
+      avatar:      avatarAtivo ? avatarAtivo.dataset.avatar : '🧑‍⚕️',
+      instituicao: document.getElementById('selectInstituicao').value,
+      curso:       document.getElementById('selectCurso').value,
+      periodo:     document.getElementById('selectPeriodo').value,
     };
     saveProfile(profile);
     renderProfileCard();
     closeOnboarding();
   });
 
-  // Fechar clicando fora do card
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay && loadProfile()) closeOnboarding();
   });
 
-  // Botão de edição na home
   editBtn.addEventListener('click', () => openOnboarding());
 
-  // Primeiro acesso: abre automaticamente
-  if (!loadProfile()) {
-    openOnboarding();
-  }
-
+  if (!loadProfile()) openOnboarding();
   renderProfileCard();
 }
 
@@ -146,14 +169,9 @@ function pushSession(entry) {
 }
 
 function save() {
-  localStorage.setItem('fq_xp',     state.xp);
-  localStorage.setItem('fq_streak', state.streak);
-}
-
-function getLevelName(xp) {
-  let level = LEVELS[0];
-  for (const l of LEVELS) { if (xp >= l.min) level = l; }
-  return level.name;
+  localStorage.setItem('fq_xp',            state.xp);
+  localStorage.setItem('fq_streak',        state.streak);
+  localStorage.setItem('fq_perfectStreak', state.perfectStreak);
 }
 
 function shuffle(arr) {
@@ -175,10 +193,32 @@ function showScreen(id) {
   if (id === 'statsScreen') renderStats();
 }
 
+// ── HUD: mostra Nível X — Nome ─────────────────────
 function updateHUD() {
+  const lvl = getLevelData(state.xp);
   document.getElementById('statXp').textContent     = state.xp + ' XP';
   document.getElementById('statStreak').textContent = state.streak;
-  document.getElementById('statRank').textContent   = getLevelName(state.xp);
+  document.getElementById('statRank').textContent   = 'Nível ' + lvl.level;
+
+  // Barra de progresso de XP na home
+  const nextXp = getNextLevelXp(state.xp);
+  const bar    = document.getElementById('xpProgressBar');
+  const barPct = document.getElementById('xpProgressPct');
+  const barNext= document.getElementById('xpProgressNext');
+  if (!bar) return;
+  if (nextXp === null) {
+    bar.style.width  = '100%';
+    if (barPct)  barPct.textContent  = '🏆 Nível máximo!';
+    if (barNext) barNext.textContent = '';
+  } else {
+    const prev = getLevelData(state.xp).min;
+    const span = nextXp - prev;
+    const done = state.xp - prev;
+    const pct  = Math.min(100, Math.round((done / span) * 100));
+    bar.style.width  = pct + '%';
+    if (barPct)  barPct.textContent  = pct + '% para Nível ' + (lvl.level + 1);
+    if (barNext) barNext.textContent = (nextXp - state.xp) + ' XP restantes';
+  }
 }
 
 function buildModuleList(areaKey) {
@@ -261,13 +301,12 @@ function renderQuestion() {
 function showFeedbackCard(isCorrect, correctText, explanation) {
   document.getElementById('feedbackPlaceholder').style.display = 'none';
 
-  const card         = document.getElementById('feedbackCard');
-  const icon         = document.getElementById('feedbackIcon');
-  const status       = document.getElementById('feedbackStatus');
-  const correctWrap  = document.getElementById('feedbackCorrectWrap');
-  const correctTxt   = document.getElementById('feedbackCorrectText');
-  const explainWrap  = document.getElementById('feedbackExplainWrap');
-  const explainTxt   = document.getElementById('feedbackExplainText');
+  const card        = document.getElementById('feedbackCard');
+  const icon        = document.getElementById('feedbackIcon');
+  const status      = document.getElementById('feedbackStatus');
+  const correctTxt  = document.getElementById('feedbackCorrectText');
+  const explainWrap = document.getElementById('feedbackExplainWrap');
+  const explainTxt  = document.getElementById('feedbackExplainText');
 
   card.classList.remove('is-correct', 'is-wrong', 'visible');
   void card.offsetWidth;
@@ -276,13 +315,12 @@ function showFeedbackCard(isCorrect, correctText, explanation) {
     icon.textContent   = '✅';
     status.textContent = 'Resposta correta!';
     card.classList.add('is-correct');
-    correctTxt.textContent = correctText;
   } else {
     icon.textContent   = '❌';
     status.textContent = 'Resposta incorreta';
     card.classList.add('is-wrong');
-    correctTxt.textContent = correctText;
   }
+  correctTxt.textContent = correctText;
 
   if (explanation) {
     explainTxt.textContent    = explanation;
@@ -322,7 +360,6 @@ function selectAnswer(btn, chosen, correct) {
   }
 
   showFeedbackCard(isCorrect, q.options[correct], q.explanation || '');
-
   save();
   updateHUD();
 
@@ -331,13 +368,19 @@ function selectAnswer(btn, chosen, correct) {
   nextBtn.textContent = isLast ? 'Ver resultado →' : 'Próxima →';
 }
 
-// ─ Mascote
-function getMascoteFala(pct) {
-  if (pct === 100) return '🏆 PERFEITO! Você mandou muito bem, futuro especialista!';
-  if (pct >= 70)  return '🎉 Ótimo trabalho! Você está no caminho certo. Continue assim!';
-  if (pct >= 50)  return '💪 Quase lá! Revise o conteúdo e tente de novo — você consegue!';
+// ── Mascote ────────────────────────────────────────
+function getMascoteFala(pct, perfectStreak) {
+  if (pct === 100 && perfectStreak >= 3)
+    return `🔥 ${perfectStreak}× PERFEITO consecutivo! Você é imparável!`;
+  if (pct === 100)
+    return '🏆 PERFEITO! Você mandou muito bem, futuro especialista!';
+  if (pct >= 70)
+    return '🎉 Ótimo trabalho! Você está no caminho certo. Continue assim!';
+  if (pct >= 50)
+    return '💪 Quase lá! Revise o conteúdo e tente de novo — você consegue!';
   return '😄 Na próxima você consegue! Não desista, cada erro é um aprendizado!';
 }
+
 function animateMascote() {
   const img = document.getElementById('mascoteImg');
   if (!img) return;
@@ -346,7 +389,7 @@ function animateMascote() {
   img.classList.add('bounce');
 }
 
-// ─ Confete
+// ── Confete ─────────────────────────────────────────
 function launchConfetti() {
   const canvas = document.getElementById('confettiCanvas');
   if (!canvas) return;
@@ -380,7 +423,7 @@ function launchConfetti() {
   draw();
 }
 
-// ─ Revisão de erros
+// ── Revisão de erros ─────────────────────────────────
 function buildReviewPanel(wrongAnswers) {
   const section = document.getElementById('reviewSection');
   const list    = document.getElementById('reviewList');
@@ -409,23 +452,58 @@ function buildReviewPanel(wrongAnswers) {
   });
 }
 
-// ─ Resultado
+// ── Resultado ─────────────────────────────────────────
 function showResult() {
-  const total    = state.questions.length;
-  const correct  = state.correct;
-  const pct      = Math.round((correct / total) * 100);
+  const total   = state.questions.length;
+  const correct = state.correct;
+  const pct     = Math.round((correct / total) * 100);
+
+  // XP base + bônus de 100%
   const xpEarned = correct * 10 + (pct === 100 ? 50 : 0);
+
+  // Perfect streak
+  const prevLvl = getLevelData(state.xp).level;
+  if (pct === 100) {
+    state.perfectStreak++;
+  } else {
+    state.perfectStreak = 0;
+  }
 
   state.xp += xpEarned;
   save();
+
+  const newLvl = getLevelData(state.xp).level;
+  const levelUp = newLvl > prevLvl;
+
   updateHUD();
 
+  // Anel de score
   document.getElementById('scoreRing').style.setProperty('--percent', pct);
   document.getElementById('finalScore').textContent   = pct + '%';
   document.getElementById('correctCount').textContent = `${correct}/${total}`;
   document.getElementById('earnedXp').textContent     = '+' + xpEarned + ' XP';
-  document.getElementById('mascoteFala').textContent  = getMascoteFala(pct);
+  document.getElementById('mascoteFala').textContent  = getMascoteFala(pct, state.perfectStreak);
 
+  // Badge de nível no resultado
+  const lvl        = getLevelData(state.xp);
+  const levelBadge = document.getElementById('resultLevelBadge');
+  if (levelBadge) {
+    levelBadge.textContent = `Nível ${lvl.level} — ${lvl.name}`;
+    levelBadge.className   = 'result-level-badge' + (levelUp ? ' level-up' : '');
+  }
+
+  // Badge de perfect streak
+  const streakBadge = document.getElementById('resultPerfectStreak');
+  if (streakBadge) {
+    if (state.perfectStreak >= 2) {
+      streakBadge.textContent = `🔥 ${state.perfectStreak}× 100% consecutivos!`;
+      streakBadge.style.display = 'block';
+    } else {
+      streakBadge.style.display = 'none';
+    }
+  }
+
+  // Texto de result
   let title, text;
   if      (pct === 100) { title = '🏆 Perfeito!';         text = 'Acertou todas! Excelente desempenho!'; }
   else if (pct >= 70)   { title = '🎉 Muito bem!';         text = 'Ótimo resultado. Continue praticando!'; }
@@ -434,6 +512,9 @@ function showResult() {
 
   document.getElementById('resultTitle').textContent = title;
   document.getElementById('resultText').textContent  = text;
+
+  // Level-up toast
+  if (levelUp) showLevelUpToast(lvl);
 
   const area = AREAS[state.currentArea];
   const mod  = area?.modules?.find(m => m.id === state.currentModule);
@@ -452,11 +533,26 @@ function showResult() {
   if (pct === 100) launchConfetti();
 }
 
+// ── Toast de Level Up ──────────────────────────────────
+function showLevelUpToast(lvl) {
+  let toast = document.getElementById('levelUpToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'levelUpToast';
+    document.querySelector('.app').appendChild(toast);
+  }
+  toast.innerHTML = `⬆️ Subiu para <strong>Nível ${lvl.level}</strong> — ${lvl.name}!`;
+  toast.classList.remove('show');
+  void toast.offsetWidth;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 4000);
+}
+
 // ──────────────────────────────────────────────────
 // TELA DE ESTATÍSTICAS
 // ──────────────────────────────────────────────────
 function renderStats() {
-  const history = loadHistory();
+  const history       = loadHistory();
   const totalSessions = history.length;
   const totalPct      = history.reduce((s, h) => s + h.pct, 0);
   const avgPct        = totalSessions ? Math.round(totalPct / totalSessions) : null;
@@ -534,7 +630,7 @@ function renderSessionLog(sessions) {
     </div>`).join('');
 }
 
-// ─ Init
+// ── Init ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   updateHUD();
   initOnboarding();

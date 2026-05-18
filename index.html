@@ -17,7 +17,7 @@
 <canvas id="confettiCanvas"></canvas>
 <div class="app">
 
-  <!-- ONBOARDING (primeiro acesso) -->
+  <!-- ONBOARDING -->
   <div id="onboardingOverlay" class="onboarding-overlay" style="display:none">
     <div class="onboarding-card">
       <img src="mascote.png" alt="Mascote FisioQuest" class="onboarding-mascote" />
@@ -126,11 +126,24 @@
         <h1>Aprenda conteúdos da saúde jogando.</h1>
         <p>Revise anatomia e fisiologia com quizzes interativos, feedback imediato e progressão por pontos.</p>
       </div>
+
       <div class="stats-row">
         <div class="stat-card"><strong id="statXp">0 XP</strong><span>Experiência</span></div>
         <div class="stat-card"><strong id="statStreak">0</strong><span>Sequência</span></div>
-        <div class="stat-card"><strong id="statRank">Iniciante</strong><span>Nível</span></div>
+        <div class="stat-card"><strong id="statRank">Nível 1</strong><span>Nível</span></div>
       </div>
+
+      <!-- Barra de progresso de XP -->
+      <div class="xp-bar-wrap">
+        <div class="xp-bar-track">
+          <div class="xp-bar-fill" id="xpProgressBar" style="width:0%"></div>
+        </div>
+        <div class="xp-bar-labels">
+          <span id="xpProgressPct">0% para Nível 2</span>
+          <span id="xpProgressNext">80 XP restantes</span>
+        </div>
+      </div>
+
       <div class="section-header">
         <h2>Áreas de Estudo</h2>
         <span>2 áreas disponíveis</span>
@@ -213,6 +226,13 @@
           <img src="mascote.png" alt="Mascote FisioQuest" class="mascote-img" id="mascoteImg" loading="lazy" />
           <div class="mascote-fala" id="mascoteFala">Você terminou a atividade!</div>
         </div>
+
+        <!-- Badge de nível atual -->
+        <div class="result-level-badge" id="resultLevelBadge">Nível 1 — Calouro</div>
+
+        <!-- Badge de perfect streak -->
+        <div class="perfect-streak-badge" id="resultPerfectStreak" style="display:none"></div>
+
         <div class="score-ring" id="scoreRing" style="--percent:0">
           <div class="score-inner">
             <strong id="finalScore">0%</strong>
