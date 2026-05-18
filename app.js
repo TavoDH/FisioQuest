@@ -1,10 +1,8 @@
-
 /* =====================================================
-   FisioQuest — app.js
-   Lógica de quiz, XP, streak, níveis e navegação
+   FisioQuest — app.js  (v2)
+   Adapta ao formato: AREAS[area].modules[]
    ===================================================== */
 
-// ── Configurações ──────────────────────────────────────
 const QUESTIONS_PER_SESSION = 10;
 
 const LEVELS = [
@@ -15,30 +13,23 @@ const LEVELS = [
   { name: 'Mestre',       min: 1500 },
 ];
 
-const AREA_CONFIG = {
-  anatomia:  { label: '🩻 Anatomia e Movimento', color: '#0d8f67' },
-  fisiologia:{ label: '❤️ Fisiologia Básica',    color: '#e05c2a' },
-};
-
-// ── Estado da sessão ───────────────────────────────────
+// ── Estado ──────────────────────────────────────────
 let state = {
   xp:     parseInt(localStorage.getItem('fq_xp')     || '0'),
   streak: parseInt(localStorage.getItem('fq_streak') || '0'),
-  currentArea:    null,
-  currentModule:  null,
-  questions:      [],
-  qIndex:         0,
-  correct:        0,
-  answered:       false,
+  currentArea:   null,
+  currentModule: null,
+  questions:     [],
+  qIndex:        0,
+  correct:       0,
+  answered:      false,
 };
 
-// ── Persistência ────────────────────────────────────────
 function save() {
   localStorage.setItem('fq_xp',     state.xp);
   localStorage.setItem('fq_streak', state.streak);
 }
 
-// ── Utilitários ─────────────────────────────────────────
 function getLevelName(xp) {
   let level = LEVELS[0];
   for (const l of LEVELS) { if (xp >= l.min) level = l; }
@@ -57,69 +48,81 @@ function shuffle(arr) {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.target === id);
-  });
+  document.querySelectorAll('.nav-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.target === id)
+  );
   window.scrollTo(0, 0);
 }
 
-// ── Home ─────────────────────────────────────────────────
+// ── HUD ──────────────────────────────────────────────
 function updateHUD() {
   document.getElementById('statXp').textContent     = state.xp + ' XP';
   document.getElementById('statStreak').textContent = state.streak;
   document.getElementById('statRank').textContent   = getLevelName(state.xp);
 }
 
-function buildModuleList(area) {
+// ── Lista de módulos ──────────────────────────────────
+function buildModuleList(areaKey) {
   const list = document.getElementById('moduleList');
   list.innerHTML = '';
 
-  if (!window.QUESTIONS || !window.QUESTIONS[area]) {
+  const area = (typeof AREAS !== 'undefined') && AREAS[areaKey];
+  if (!area || !area.modules || area.modules.length === 0) {
     list.innerHTML = '<p style="color:var(--color-text-muted);padding:var(--space-4)">Módulos não encontrados.</p>';
     return;
   }
 
-  const modules = window.QUESTIONS[area];
-  Object.entries(modules).forEach(([key, mod]) => {
+  area.modules.forEach(mod => {
     const total = mod.questions ? mod.questions.length : 0;
-    const card = document.createElement('button');
+    const card  = document.createElement('button');
     card.className = 'module-card';
     card.innerHTML = `
       <div class="module-info">
-        <strong>${mod.title}</strong>
-        <span>${total} questões disponíveis • sessões de ${QUESTIONS_PER_SESSION}</span>
+        <strong>${mod.icon || ''} ${mod.title}</strong>
+        <span>${mod.subtitle || ''} &bull; ${total} questões</span>
       </div>
       <span class="module-arrow">→</span>
     `;
-    card.addEventListener('click', () => startLesson(area, key));
+    card.addEventListener('click', () => startLesson(areaKey, mod.id));
     list.appendChild(card);
   });
 }
 
-// ── Início da lição ──────────────────────────────────────
-function startLesson(area, moduleKey) {
-  const mod = window.QUESTIONS[area][moduleKey];
+// ── Iniciar lição ─────────────────────────────────────
+function startLesson(areaKey, moduleId) {
+  const area = AREAS[areaKey];
+  if (!area) return;
+
+  const mod = area.modules.find(m => m.id === moduleId);
   if (!mod || !mod.questions || mod.questions.length === 0) return;
 
-  state.currentArea   = area;
-  state.currentModule = moduleKey;
-  state.questions     = shuffle(mod.questions).slice(0, QUESTIONS_PER_SESSION);
+  // normaliza campo: suporta `answer` ou `correct` (índice) e `q` ou `question`
+  const normalize = (q) => ({
+    question:    q.question || q.q,
+    options:     q.options,
+    correct:     q.correct  !== undefined ? q.correct : q.answer,
+    explanation: q.explanation || q.explain || '',
+  });
+
+  state.currentArea   = areaKey;
+  state.currentModule = moduleId;
+  state.questions     = shuffle(mod.questions.map(normalize)).slice(0, QUESTIONS_PER_SESSION);
   state.qIndex        = 0;
   state.correct       = 0;
   state.answered      = false;
 
-  document.getElementById('lessonTag').textContent   = AREA_CONFIG[area]?.label || area;
+  document.getElementById('lessonTag').textContent   = area.icon + ' ' + area.label;
   document.getElementById('lessonTitle').textContent = mod.title;
 
   showScreen('lessonScreen');
   renderQuestion();
 }
 
-// ── Questão ──────────────────────────────────────────────
+// ── Renderizar questão ────────────────────────────────
 function renderQuestion() {
-  const q       = state.questions[state.qIndex];
-  const total   = state.questions.length;
-  const pct     = Math.round((state.qIndex / total) * 100);
+  const q     = state.questions[state.qIndex];
+  const total = state.questions.length;
+  const pct   = Math.round((state.qIndex / total) * 100);
 
   document.getElementById('questionCounter').textContent = `${state.qIndex + 1}/${total}`;
   document.getElementById('progressText').textContent    = pct + '%';
@@ -129,15 +132,11 @@ function renderQuestion() {
   const answersEl = document.getElementById('answers');
   answersEl.innerHTML = '';
 
-  const shuffledOptions = shuffle(
-    q.options.map((text, i) => ({ text, index: i }))
-  );
-
-  shuffledOptions.forEach(({ text, index }) => {
+  shuffle(q.options.map((text, i) => ({ text, index: i }))).forEach(({ text, index }) => {
     const btn = document.createElement('button');
-    btn.className = 'answer-btn';
-    btn.textContent = text;
-    btn.dataset.index = index;
+    btn.className      = 'answer-btn';
+    btn.textContent    = text;
+    btn.dataset.index  = index;
     btn.addEventListener('click', () => selectAnswer(btn, index, q.correct));
     answersEl.appendChild(btn);
   });
@@ -153,15 +152,16 @@ function renderQuestion() {
   state.answered = false;
 }
 
+// ── Selecionar resposta ───────────────────────────────
 function selectAnswer(btn, chosen, correct) {
   if (state.answered) return;
   state.answered = true;
 
-  const allBtns    = document.querySelectorAll('.answer-btn');
-  const isCorrect  = chosen === correct;
-  const feedback   = document.getElementById('feedback');
-  const nextBtn    = document.getElementById('nextBtn');
-  const q          = state.questions[state.qIndex];
+  const allBtns   = document.querySelectorAll('.answer-btn');
+  const isCorrect = chosen === correct;
+  const feedback  = document.getElementById('feedback');
+  const nextBtn   = document.getElementById('nextBtn');
+  const q         = state.questions[state.qIndex];
 
   allBtns.forEach(b => {
     b.disabled = true;
@@ -189,30 +189,27 @@ function selectAnswer(btn, chosen, correct) {
   nextBtn.textContent = isLast ? 'Ver resultado →' : 'Próxima →';
 }
 
-// ── Resultado ────────────────────────────────────────────
+// ── Resultado ─────────────────────────────────────────
 function showResult() {
-  const total   = state.questions.length;
-  const correct = state.correct;
-  const pct     = Math.round((correct / total) * 100);
+  const total    = state.questions.length;
+  const correct  = state.correct;
+  const pct      = Math.round((correct / total) * 100);
   const xpEarned = correct * 10 + (pct === 100 ? 50 : 0);
 
   state.xp += xpEarned;
   save();
   updateHUD();
 
-  // anel de pontuação via CSS custom property
-  const ring = document.getElementById('scoreRing');
-  ring.style.setProperty('--percent', pct);
-
-  document.getElementById('finalScore').textContent  = pct + '%';
+  document.getElementById('scoreRing').style.setProperty('--percent', pct);
+  document.getElementById('finalScore').textContent   = pct + '%';
   document.getElementById('correctCount').textContent = `${correct}/${total}`;
-  document.getElementById('earnedXp').textContent    = '+' + xpEarned + ' XP';
+  document.getElementById('earnedXp').textContent     = '+' + xpEarned + ' XP';
 
   let title, text;
-  if (pct === 100) { title = '🏆 Perfeito!';       text = 'Acertou todas! Excelente desempenho!'; }
-  else if (pct >= 70) { title = '🎉 Muito bem!';   text = 'Ótimo resultado. Continue praticando!'; }
-  else if (pct >= 50) { title = '👍 Bom trabalho!'; text = 'Metade certa. Revise e tente de novo!'; }
-  else { title = '💪 Continue tentando!'; text = 'Revise o conteúdo e repita a sessão.'; }
+  if      (pct === 100) { title = '🏆 Perfeito!';        text = 'Acertou todas! Excelente desempenho!'; }
+  else if (pct >= 70)   { title = '🎉 Muito bem!';        text = 'Ótimo resultado. Continue praticando!'; }
+  else if (pct >= 50)   { title = '👍 Bom trabalho!';     text = 'Metade certa. Revise e tente de novo!'; }
+  else                  { title = '💪 Continue tentando!'; text = 'Revise o conteúdo e repita a sessão.'; }
 
   document.getElementById('resultTitle').textContent = title;
   document.getElementById('resultText').textContent  = text;
@@ -220,12 +217,11 @@ function showResult() {
   showScreen('resultScreen');
 }
 
-// ── Event Listeners ──────────────────────────────────────
+// ── Init ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-
   updateHUD();
 
-  // Tabs de área
+  // tabs de área
   document.querySelectorAll('.area-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.area-tab').forEach(t => t.classList.remove('active'));
@@ -233,65 +229,45 @@ document.addEventListener('DOMContentLoaded', () => {
       buildModuleList(tab.dataset.area);
     });
   });
-
-  // Carregar anatomia por padrão
   buildModuleList('anatomia');
 
-  // Botão início rápido
+  // início rápido — primeiro módulo de anatomia
   document.getElementById('quickStartBtn').addEventListener('click', () => {
-    const firstArea = 'anatomia';
-    const firstMod  = Object.keys(window.QUESTIONS?.[firstArea] || {})[0];
-    if (firstMod) startLesson(firstArea, firstMod);
+    const mods = AREAS?.anatomia?.modules;
+    if (mods && mods.length > 0) startLesson('anatomia', mods[0].id);
   });
 
-  // Próxima questão / ver resultado
+  // próxima / ver resultado
   document.getElementById('nextBtn').addEventListener('click', () => {
     if (!state.answered) return;
     state.qIndex++;
-    if (state.qIndex >= state.questions.length) {
-      showResult();
-    } else {
-      renderQuestion();
-    }
+    if (state.qIndex >= state.questions.length) showResult();
+    else renderQuestion();
   });
 
-  // Voltar ao início durante a lição
-  document.getElementById('backHomeBtn').addEventListener('click', () => {
-    showScreen('homeScreen');
-  });
+  document.getElementById('backHomeBtn').addEventListener('click',       () => showScreen('homeScreen'));
+  document.getElementById('restartModuleBtn').addEventListener('click',  () => startLesson(state.currentArea, state.currentModule));
+  document.getElementById('goHomeFromResultBtn').addEventListener('click',() => showScreen('homeScreen'));
 
-  // Repetir módulo
-  document.getElementById('restartModuleBtn').addEventListener('click', () => {
-    startLesson(state.currentArea, state.currentModule);
-  });
-
-  // Voltar ao início após resultado
-  document.getElementById('goHomeFromResultBtn').addEventListener('click', () => {
-    showScreen('homeScreen');
-  });
-
-  // Navegação inferior
+  // nav inferior
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const target = btn.dataset.target;
-      if (target === 'lessonScreen' && state.questions.length === 0) return;
-      if (target === 'resultScreen' && state.questions.length === 0) return;
-      showScreen(target);
+      const t = btn.dataset.target;
+      if ((t === 'lessonScreen' || t === 'resultScreen') && state.questions.length === 0) return;
+      showScreen(t);
     });
   });
 
-  // Toggle de tema
+  // tema dark/light
   const themeToggle = document.getElementById('themeToggle');
   const themeIcon   = document.getElementById('themeIcon');
   const html        = document.documentElement;
-
-  const savedTheme = localStorage.getItem('fq_theme') || 'light';
-  html.setAttribute('data-theme', savedTheme);
-  themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+  const saved       = localStorage.getItem('fq_theme') || 'light';
+  html.setAttribute('data-theme', saved);
+  themeIcon.textContent = saved === 'dark' ? '☀️' : '🌙';
 
   themeToggle.addEventListener('click', () => {
-    const current = html.getAttribute('data-theme');
-    const next    = current === 'dark' ? 'light' : 'dark';
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     html.setAttribute('data-theme', next);
     themeIcon.textContent = next === 'dark' ? '☀️' : '🌙';
     localStorage.setItem('fq_theme', next);
