@@ -433,7 +433,7 @@ main{padding:0 var(--space-4) var(--space-10);flex:1}
   color:var(--color-text-muted);margin-top:calc(var(--space-1)*-1);
 }
 
-/* ── Grupos de formulário ── */
+/* -- Grupos de formulario -- */
 .form-group{
   display:flex;flex-direction:column;gap:var(--space-2);
 }
@@ -461,7 +461,7 @@ main{padding:0 var(--space-4) var(--space-10);flex:1}
   color:var(--color-text-muted);
 }
 
-/* ── Grade de avatares ── */
+/* -- Grade de avatares -- */
 .avatar-grid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -490,6 +490,7 @@ main{padding:0 var(--space-4) var(--space-10);flex:1}
 .profile-card{
   display:flex;
   align-items:center;
+  justify-content:space-between;
   gap:var(--space-3);
   background:var(--color-surface);
   border:1px solid var(--color-border);
@@ -497,6 +498,14 @@ main{padding:0 var(--space-4) var(--space-10);flex:1}
   padding:var(--space-4);
   margin-top:var(--space-4);
   box-shadow:var(--shadow-sm);
+}
+/* agrupa avatar + textos lado a lado */
+.profile-left{
+  display:flex;
+  align-items:center;
+  gap:var(--space-3);
+  min-width:0;
+  flex:1;
 }
 .profile-avatar{
   font-size:2rem;
@@ -508,7 +517,6 @@ main{padding:0 var(--space-4) var(--space-10);flex:1}
   flex-shrink:0;
 }
 .profile-info{
-  flex:1;
   display:flex;flex-direction:column;gap:2px;
   min-width:0;
 }
