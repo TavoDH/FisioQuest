@@ -89,7 +89,6 @@ function startLesson(areaKey, moduleId) {
   const mod = area.modules.find(m => m.id === moduleId);
   if (!mod || !mod.questions || mod.questions.length === 0) return;
 
-  // normaliza campo: suporta `answer` ou `correct` (índice) e `q` ou `question`
   const normalize = (q) => ({
     question:    q.question || q.q,
     options:     q.options,
@@ -182,6 +181,14 @@ function selectAnswer(btn, chosen, correct) {
   nextBtn.textContent = isLast ? 'Ver resultado →' : 'Próxima →';
 }
 
+// ── Fala do mascote por desempenho ────────────────────────
+function getMascoteFala(pct) {
+  if (pct === 100) return '🏆 PERFEITO! Você mandou muito bem, futuro especialista!';
+  if (pct >= 70)  return '🎉 Ótimo trabalho! Você está no caminho certo. Continue assim!';
+  if (pct >= 50)  return '💪 Quase lá! Revise o conteúdo e tente de novo — você consegue!';
+  return '😄 Na próxima você consegue! Não desista, cada erro é um aprendizado!';
+}
+
 // ── Resultado ─────────────────────────────────────────
 function showResult() {
   const total    = state.questions.length;
@@ -197,6 +204,9 @@ function showResult() {
   document.getElementById('finalScore').textContent   = pct + '%';
   document.getElementById('correctCount').textContent = `${correct}/${total}`;
   document.getElementById('earnedXp').textContent     = '+' + xpEarned + ' XP';
+
+  // Atualiza fala do mascote
+  document.getElementById('mascoteFala').textContent = getMascoteFala(pct);
 
   let title, text;
   if      (pct === 100) { title = '🏆 Perfeito!';        text = 'Acertou todas! Excelente desempenho!'; }
@@ -214,7 +224,6 @@ function showResult() {
 document.addEventListener('DOMContentLoaded', () => {
   updateHUD();
 
-  // tabs de área
   document.querySelectorAll('.area-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.area-tab').forEach(t => t.classList.remove('active'));
@@ -224,13 +233,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   buildModuleList('anatomia');
 
-  // início rápido — primeiro módulo de anatomia
   document.getElementById('quickStartBtn').addEventListener('click', () => {
     const mods = AREAS?.anatomia?.modules;
     if (mods && mods.length > 0) startLesson('anatomia', mods[0].id);
   });
 
-  // próxima / ver resultado
   document.getElementById('nextBtn').addEventListener('click', () => {
     if (!state.answered) return;
     state.qIndex++;
@@ -238,11 +245,10 @@ document.addEventListener('DOMContentLoaded', () => {
     else renderQuestion();
   });
 
-  document.getElementById('backHomeBtn').addEventListener('click',       () => showScreen('homeScreen'));
-  document.getElementById('restartModuleBtn').addEventListener('click',  () => startLesson(state.currentArea, state.currentModule));
+  document.getElementById('backHomeBtn').addEventListener('click',        () => showScreen('homeScreen'));
+  document.getElementById('restartModuleBtn').addEventListener('click',   () => startLesson(state.currentArea, state.currentModule));
   document.getElementById('goHomeFromResultBtn').addEventListener('click',() => showScreen('homeScreen'));
 
-  // nav inferior
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const t = btn.dataset.target;
@@ -251,7 +257,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // tema dark/light
   const themeToggle = document.getElementById('themeToggle');
   const themeIcon   = document.getElementById('themeIcon');
   const html        = document.documentElement;
