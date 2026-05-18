@@ -92,7 +92,28 @@
       <div class="question-card">
         <p class="question-text" id="questionText"></p>
         <div class="answers" id="answers"></div>
-        <div class="feedback" id="feedback">Escolha uma resposta para continuar.</div>
+
+        <!-- Placeholder inicial -->
+        <p class="feedback-placeholder" id="feedbackPlaceholder">Escolha uma resposta para continuar.</p>
+
+        <!-- Card estruturado (aparece após responder) -->
+        <div class="feedback-card" id="feedbackCard">
+          <div class="feedback-header">
+            <span class="feedback-header-icon" id="feedbackIcon"></span>
+            <span id="feedbackStatus"></span>
+          </div>
+          <div class="feedback-body">
+            <div class="feedback-correct-answer" id="feedbackCorrectWrap">
+              <span class="fca-label">✓ Correta:</span>
+              <span class="fca-text" id="feedbackCorrectText"></span>
+            </div>
+            <div class="feedback-explanation" id="feedbackExplainWrap" style="display:none">
+              <span class="fe-icon">💡</span>
+              <span class="fe-text" id="feedbackExplainText"></span>
+            </div>
+          </div>
+        </div>
+
         <div class="card-actions">
           <button class="btn btn-primary" id="nextBtn" disabled>Responda primeiro</button>
           <button class="btn btn-ghost" id="backHomeBtn">← Voltar ao início</button>
@@ -136,13 +157,10 @@
     <!-- ESTATÍSTICAS -->
     <section id="statsScreen" class="screen">
       <div class="stats-page">
-
         <div class="stats-page-header">
           <h2>📊 Meu Desempenho</h2>
           <p>Acompanhe sua evolução nas atividades</p>
         </div>
-
-        <!-- KPIs GERAIS -->
         <div class="kpi-grid">
           <div class="kpi-card kpi-primary">
             <span class="kpi-icon">⚡</span>
@@ -165,35 +183,27 @@
             <small>Melhor Nota</small>
           </div>
         </div>
-
-        <!-- GRÁFICO DE EVOLUÇÃO -->
         <div class="chart-card">
           <h3>Evolução das Últimas Sessões</h3>
           <div class="bar-chart" id="barChart">
             <p class="empty-chart">Complete sessões para ver sua evolução aqui.</p>
           </div>
         </div>
-
-        <!-- DESEMPENHO POR MÓDULO -->
         <div class="chart-card">
           <h3>Desempenho por Módulo</h3>
           <div id="moduleStats">
             <p class="empty-chart">Nenhuma sessão registrada ainda.</p>
           </div>
         </div>
-
-        <!-- ÚLTIMAS SESSÕES -->
         <div class="chart-card">
           <h3>Histórico de Atividades</h3>
           <div class="session-log" id="sessionLog">
             <p class="empty-chart">Nenhuma atividade ainda.</p>
           </div>
         </div>
-
         <button class="btn btn-ghost" id="clearStatsBtn" style="margin-top:var(--space-4);color:var(--color-error);border-color:var(--color-error)">
           🗑️ Limpar histórico
         </button>
-
       </div>
     </section>
 

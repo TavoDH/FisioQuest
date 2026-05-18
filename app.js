@@ -1,5 +1,5 @@
-/* FisioQuest — app.js v4
-   + Tela de Estatísticas com KPIs, gráfico de barras e histórico
+/* FisioQuest — app.js v5
+   + Feedback estruturado com card explicativo
 */
 
 const QUESTIONS_PER_SESSION = 10;
@@ -12,7 +12,6 @@ const LEVELS = [
   { name: 'Mestre',       min: 1500 },
 ];
 
-// ─ Estado principal
 let state = {
   xp:     parseInt(localStorage.getItem('fq_xp')     || '0'),
   streak: parseInt(localStorage.getItem('fq_streak') || '0'),
@@ -25,7 +24,6 @@ let state = {
   wrongAnswers:  [],
 };
 
-// ─ Histórico de sessões (persistência em localStorage)
 function loadHistory() {
   try { return JSON.parse(localStorage.getItem('fq_history') || '[]'); }
   catch { return []; }
@@ -36,7 +34,7 @@ function saveHistory(history) {
 function pushSession(entry) {
   const h = loadHistory();
   h.push(entry);
-  if (h.length > 50) h.splice(0, h.length - 50); // máx 50 sessões
+  if (h.length > 50) h.splice(0, h.length - 50);
   saveHistory(h);
 }
 
@@ -143,14 +141,52 @@ function renderQuestion() {
     answersEl.appendChild(btn);
   });
 
-  const feedback = document.getElementById('feedback');
-  feedback.textContent = 'Escolha uma resposta para continuar.';
-  feedback.className   = 'feedback';
+  // Reseta feedback
+  document.getElementById('feedbackPlaceholder').style.display = 'block';
+  const card = document.getElementById('feedbackCard');
+  card.classList.remove('visible', 'is-correct', 'is-wrong');
 
   const nextBtn = document.getElementById('nextBtn');
   nextBtn.disabled    = true;
   nextBtn.textContent = 'Responda primeiro';
   state.answered = false;
+}
+
+function showFeedbackCard(isCorrect, correctText, explanation) {
+  document.getElementById('feedbackPlaceholder').style.display = 'none';
+
+  const card         = document.getElementById('feedbackCard');
+  const icon         = document.getElementById('feedbackIcon');
+  const status       = document.getElementById('feedbackStatus');
+  const correctWrap  = document.getElementById('feedbackCorrectWrap');
+  const correctTxt   = document.getElementById('feedbackCorrectText');
+  const explainWrap  = document.getElementById('feedbackExplainWrap');
+  const explainTxt   = document.getElementById('feedbackExplainText');
+
+  card.classList.remove('is-correct', 'is-wrong', 'visible');
+  void card.offsetWidth; // força reinício da animação
+
+  if (isCorrect) {
+    icon.textContent   = '✅';
+    status.textContent = 'Resposta correta!';
+    card.classList.add('is-correct');
+    // Mesmo acertando, mostra qual é a correta para reforço
+    correctTxt.textContent = correctText;
+  } else {
+    icon.textContent   = '❌';
+    status.textContent = 'Resposta incorreta';
+    card.classList.add('is-wrong');
+    correctTxt.textContent = correctText;
+  }
+
+  if (explanation) {
+    explainTxt.textContent    = explanation;
+    explainWrap.style.display = 'flex';
+  } else {
+    explainWrap.style.display = 'none';
+  }
+
+  card.classList.add('visible');
 }
 
 function selectAnswer(btn, chosen, correct) {
@@ -159,7 +195,6 @@ function selectAnswer(btn, chosen, correct) {
 
   const allBtns   = document.querySelectorAll('.answer');
   const isCorrect = chosen === correct;
-  const feedback  = document.getElementById('feedback');
   const nextBtn   = document.getElementById('nextBtn');
   const q         = state.questions[state.qIndex];
 
@@ -172,18 +207,16 @@ function selectAnswer(btn, chosen, correct) {
     btn.classList.add('correct');
     state.correct++;
     state.streak++;
-    feedback.textContent = '✅ Correto! ' + (q.explanation || '');
-    feedback.className   = 'feedback feedback-correct';
   } else {
     btn.classList.add('wrong');
     state.streak = 0;
-    feedback.textContent = '❌ Incorreto. ' + (q.explanation || '');
-    feedback.className   = 'feedback feedback-wrong';
     state.wrongAnswers.push({
       question: q.question, options: q.options,
       chosen, correct, explanation: q.explanation || '',
     });
   }
+
+  showFeedbackCard(isCorrect, q.options[correct], q.explanation || '');
 
   save();
   updateHUD();
@@ -263,7 +296,6 @@ function buildReviewPanel(wrongAnswers) {
     list.appendChild(item);
   });
   section.style.display = 'block';
-  // remove listener antigo e adiciona novo
   const newToggle = toggle.cloneNode(true);
   toggle.parentNode.replaceChild(newToggle, toggle);
   newToggle.addEventListener('click', () => {
@@ -284,10 +316,10 @@ function showResult() {
   updateHUD();
 
   document.getElementById('scoreRing').style.setProperty('--percent', pct);
-  document.getElementById('finalScore').textContent  = pct + '%';
+  document.getElementById('finalScore').textContent   = pct + '%';
   document.getElementById('correctCount').textContent = `${correct}/${total}`;
-  document.getElementById('earnedXp').textContent    = '+' + xpEarned + ' XP';
-  document.getElementById('mascoteFala').textContent = getMascoteFala(pct);
+  document.getElementById('earnedXp').textContent     = '+' + xpEarned + ' XP';
+  document.getElementById('mascoteFala').textContent  = getMascoteFala(pct);
 
   let title, text;
   if      (pct === 100) { title = '🏆 Perfeito!';         text = 'Acertou todas! Excelente desempenho!'; }
@@ -298,19 +330,15 @@ function showResult() {
   document.getElementById('resultTitle').textContent = title;
   document.getElementById('resultText').textContent  = text;
 
-  // Salva sessão no histórico
   const area = AREAS[state.currentArea];
   const mod  = area?.modules?.find(m => m.id === state.currentModule);
   pushSession({
-    ts:         Date.now(),
-    area:       state.currentArea,
-    areaLabel:  area?.label || state.currentArea,
-    moduleId:   state.currentModule,
+    ts:          Date.now(),
+    area:        state.currentArea,
+    areaLabel:   area?.label || state.currentArea,
+    moduleId:    state.currentModule,
     moduleTitle: mod?.title || state.currentModule,
-    total,
-    correct,
-    pct,
-    xpEarned,
+    total, correct, pct, xpEarned,
   });
 
   buildReviewPanel(state.wrongAnswers);
@@ -324,8 +352,6 @@ function showResult() {
 // ──────────────────────────────────────────────────
 function renderStats() {
   const history = loadHistory();
-
-  // KPIs
   const totalSessions = history.length;
   const totalPct      = history.reduce((s, h) => s + h.pct, 0);
   const avgPct        = totalSessions ? Math.round(totalPct / totalSessions) : null;
@@ -336,13 +362,8 @@ function renderStats() {
   document.getElementById('kpiAvg').textContent      = avgPct !== null ? avgPct + '%' : '-';
   document.getElementById('kpiBest').textContent     = bestPct !== null ? bestPct + '%' : '-';
 
-  // Gráfico de barras (últimas 10 sessões)
   renderBarChart(history.slice(-10));
-
-  // Desempenho por módulo
   renderModuleStats(history);
-
-  // Histórico (recentes primeiro)
   renderSessionLog(history.slice().reverse().slice(0, 20));
 }
 
@@ -352,7 +373,7 @@ function renderBarChart(sessions) {
     el.innerHTML = '<p class="empty-chart">Complete sessões para ver sua evolução aqui.</p>';
     return;
   }
-  const maxH = 80; // px
+  const maxH = 80;
   const bars = sessions.map(s => {
     const h = Math.max(4, Math.round((s.pct / 100) * maxH));
     const d = new Date(s.ts);
@@ -370,14 +391,11 @@ function renderBarChart(sessions) {
 function renderModuleStats(history) {
   const el = document.getElementById('moduleStats');
   if (!history.length) { el.innerHTML = '<p class="empty-chart">Nenhuma sessão registrada ainda.</p>'; return; }
-
-  // Agrupa por módulo
   const map = {};
   history.forEach(s => {
     if (!map[s.moduleId]) map[s.moduleId] = { title: s.moduleTitle, pcts: [] };
     map[s.moduleId].pcts.push(s.pct);
   });
-
   el.innerHTML = Object.values(map).map(m => {
     const avg   = Math.round(m.pcts.reduce((a,b) => a+b, 0) / m.pcts.length);
     const count = m.pcts.length;
@@ -398,11 +416,9 @@ function renderModuleStats(history) {
 function renderSessionLog(sessions) {
   const el = document.getElementById('sessionLog');
   if (!sessions.length) { el.innerHTML = '<p class="empty-chart">Nenhuma atividade ainda.</p>'; return; }
-
   const fmt = ts => new Date(ts).toLocaleString('pt-BR', {
     day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'
   });
-
   el.innerHTML = sessions.map(s => `
     <div class="session-entry">
       <div class="session-info">
