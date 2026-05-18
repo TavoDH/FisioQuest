@@ -73,13 +73,11 @@ function buildModuleList(areaKey) {
   }
 
   area.modules.forEach(mod => {
-    const total = mod.questions ? mod.questions.length : 0;
     const card  = document.createElement('button');
     card.className = 'module-card';
     card.innerHTML = `
       <div class="module-info">
         <strong>${mod.icon || ''} ${mod.title}</strong>
-        <span>${mod.subtitle || ''} &bull; ${total} questões</span>
       </div>
       <span class="module-arrow">→</span>
     `;
