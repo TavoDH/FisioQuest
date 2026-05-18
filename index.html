@@ -6,6 +6,12 @@
   <meta name="theme-color" content="#0d8f67" />
   <meta name="description" content="FisioQuest - Protótipo gamificado de apoio ao ensino nas ciências da saúde" />
   <title>FisioQuest</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="logo.png" />
+  <link rel="icon" type="image/png" href="logo.png" />
+
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
@@ -167,5 +173,13 @@
 </div>
 <script src="questions.js"></script>
 <script src="app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .catch(err => console.warn('SW não registrado:', err));
+    });
+  }
+</script>
 </body>
 </html>
