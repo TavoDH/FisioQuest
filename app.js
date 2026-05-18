@@ -426,11 +426,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   buildModuleList('anatomia');
 
-  document.getElementById('quickStartBtn').addEventListener('click', () => {
-    const mods = AREAS?.anatomia?.modules;
-    if (mods && mods.length > 0) startLesson('anatomia', mods[0].id);
-  });
-
   document.getElementById('nextBtn').addEventListener('click', () => {
     if (!state.answered) return;
     state.qIndex++;
