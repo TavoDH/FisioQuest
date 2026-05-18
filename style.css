@@ -92,8 +92,28 @@ main{padding:0 var(--space-4) var(--space-10);flex:1}
 
 /* MODULE LIST */
 .module-list{display:grid;gap:var(--space-3)}
-.module-card{display:grid;grid-template-columns:56px 1fr auto;gap:var(--space-4);align-items:center;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-4);box-shadow:var(--shadow-sm);transition:box-shadow .18s ease}
+.module-card{
+  display:flex;
+  align-items:center;
+  gap:var(--space-3);
+  width:100%;
+  text-align:left;
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  border-radius:var(--radius-lg);
+  padding:var(--space-4) var(--space-5);
+  box-shadow:var(--shadow-sm);
+  transition:box-shadow .18s ease;
+}
 .module-card:hover{box-shadow:var(--shadow-md)}
+.module-label{
+  font-size:var(--text-base);
+  font-weight:700;
+  color:var(--color-text);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 .module-icon{width:56px;height:56px;border-radius:14px;display:grid;place-items:center;font-size:1.5rem;background:var(--color-surface-2)}
 .module-meta h3{font-size:var(--text-base);margin:0 0 .2rem}
 .module-meta p{font-size:var(--text-xs);color:var(--color-text-muted);margin:0}
