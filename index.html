@@ -41,18 +41,9 @@
         <button class="btn btn-inverse" id="quickStartBtn">Começar agora →</button>
       </div>
       <div class="stats-row">
-        <div class="stat-card">
-          <strong id="statXp">0 XP</strong>
-          <span>Experiência</span>
-        </div>
-        <div class="stat-card">
-          <strong id="statStreak">0</strong>
-          <span>Sequência</span>
-        </div>
-        <div class="stat-card">
-          <strong id="statRank">Iniciante</strong>
-          <span>Nível</span>
-        </div>
+        <div class="stat-card"><strong id="statXp">0 XP</strong><span>Experiência</span></div>
+        <div class="stat-card"><strong id="statStreak">0</strong><span>Sequência</span></div>
+        <div class="stat-card"><strong id="statRank">Iniciante</strong><span>Nível</span></div>
       </div>
       <div class="section-header">
         <h2>Áreas de Estudo</h2>
@@ -64,8 +55,7 @@
       </div>
       <div class="module-list" id="moduleList"></div>
       <div class="section-header" style="margin-top:var(--space-8)">
-        <h2>Em breve</h2>
-        <span>Expansões futuras</span>
+        <h2>Em breve</h2><span>Expansões futuras</span>
       </div>
       <div class="future-grid">
         <div class="future-card">💊 Farmacologia<span>Em desenvolvimento</span></div>
@@ -127,17 +117,9 @@
         <h2 id="resultTitle">Lição concluída!</h2>
         <p id="resultText">Você terminou a atividade.</p>
         <div class="result-stats">
-          <div class="stat-card">
-            <strong id="correctCount">0/10</strong>
-            <span>Acertos</span>
-          </div>
-          <div class="stat-card">
-            <strong id="earnedXp">0 XP</strong>
-            <span>Ganhos</span>
-          </div>
+          <div class="stat-card"><strong id="correctCount">0/10</strong><span>Acertos</span></div>
+          <div class="stat-card"><strong id="earnedXp">0 XP</strong><span>Ganhos</span></div>
         </div>
-
-        <!-- REVISÃO DE ERROS -->
         <div id="reviewSection" style="display:none;width:100%;text-align:left;margin-top:var(--space-4)">
           <button class="review-toggle" id="reviewToggle">
             📋 Ver questões que errei <span id="reviewCount"></span>
@@ -145,11 +127,74 @@
           </button>
           <div class="review-list" id="reviewList"></div>
         </div>
-
         <div class="card-actions" style="margin-top:var(--space-5)">
           <button class="btn btn-primary" id="restartModuleBtn">🔄 Repetir módulo</button>
           <button class="btn btn-ghost" id="goHomeFromResultBtn">← Escolher outro módulo</button>
         </div>
+      </div>
+    </section>
+
+    <!-- ESTATÍSTICAS -->
+    <section id="statsScreen" class="screen">
+      <div class="stats-page">
+
+        <div class="stats-page-header">
+          <h2>📊 Meu Desempenho</h2>
+          <p>Acompanhe sua evolução nas atividades</p>
+        </div>
+
+        <!-- KPIs GERAIS -->
+        <div class="kpi-grid">
+          <div class="kpi-card kpi-primary">
+            <span class="kpi-icon">⚡</span>
+            <strong id="kpiXp">0</strong>
+            <small>XP Total</small>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-icon">📚</span>
+            <strong id="kpiSessions">0</strong>
+            <small>Sessões</small>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-icon">🎯</span>
+            <strong id="kpiAvg">-</strong>
+            <small>Média Geral</small>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-icon">🔥</span>
+            <strong id="kpiBest">-</strong>
+            <small>Melhor Nota</small>
+          </div>
+        </div>
+
+        <!-- GRÁFICO DE EVOLUÇÃO -->
+        <div class="chart-card">
+          <h3>Evolução das Últimas Sessões</h3>
+          <div class="bar-chart" id="barChart">
+            <p class="empty-chart">Complete sessões para ver sua evolução aqui.</p>
+          </div>
+        </div>
+
+        <!-- DESEMPENHO POR MÓDULO -->
+        <div class="chart-card">
+          <h3>Desempenho por Módulo</h3>
+          <div id="moduleStats">
+            <p class="empty-chart">Nenhuma sessão registrada ainda.</p>
+          </div>
+        </div>
+
+        <!-- ÚBTIMAS SESSÕES -->
+        <div class="chart-card">
+          <h3>Histórico de Atividades</h3>
+          <div class="session-log" id="sessionLog">
+            <p class="empty-chart">Nenhuma atividade ainda.</p>
+          </div>
+        </div>
+
+        <button class="btn btn-ghost" id="clearStatsBtn" style="margin-top:var(--space-4);color:var(--color-error);border-color:var(--color-error)">
+          🗑️ Limpar histórico
+        </button>
+
       </div>
     </section>
 
@@ -158,6 +203,7 @@
   <nav class="bottom-nav" aria-label="Navegação">
     <button class="nav-btn active" data-target="homeScreen">🏠<span>Início</span></button>
     <button class="nav-btn" data-target="lessonScreen">📚<span>Lição</span></button>
+    <button class="nav-btn" data-target="statsScreen">📊<span>Stats</span></button>
     <button class="nav-btn" data-target="resultScreen">🏅<span>Resultado</span></button>
   </nav>
 
