@@ -76,6 +76,12 @@ main{padding:0 var(--space-4) var(--space-10);flex:1}
 .stat-card strong{display:block;font-size:var(--text-lg);color:var(--color-primary);line-height:1;margin-bottom:.25rem}
 .stat-card span{font-size:var(--text-xs);color:var(--color-text-muted)}
 
+/* ── Barra de XP ── */
+.xp-bar-wrap{margin:calc(var(--space-3)*-1) 0 var(--space-5)}
+.xp-bar-track{height:8px;border-radius:var(--radius-full);background:var(--color-surface-2);overflow:hidden;border:1px solid var(--color-border)}
+.xp-bar-fill{height:100%;border-radius:var(--radius-full);background:linear-gradient(90deg,var(--color-primary),#4edba8);transition:width .5s ease}
+.xp-bar-labels{display:flex;justify-content:space-between;font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-2)}
+
 .section-header{display:flex;justify-content:space-between;align-items:end;margin:var(--space-6) 0 var(--space-3)}
 .section-header h2{font-size:var(--text-lg)}
 .section-header span{font-size:var(--text-xs);color:var(--color-text-muted)}
@@ -195,7 +201,48 @@ main{padding:0 var(--space-4) var(--space-10);flex:1}
 .feedback-explanation .fe-text{color:var(--color-text);}
 .card-actions{display:grid;gap:var(--space-3)}
 
+/* ── Tela de Resultado ── */
 .result-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-6) var(--space-5);box-shadow:var(--shadow-md);text-align:center;margin-top:var(--space-4)}
+
+/* Badge de nível */
+.result-level-badge{
+  display:inline-block;
+  margin:0 auto var(--space-3);
+  padding:.35rem 1rem;
+  border-radius:var(--radius-full);
+  font-size:var(--text-xs);
+  font-weight:800;
+  background:var(--color-surface-2);
+  color:var(--color-text-muted);
+  border:1px solid var(--color-border);
+  letter-spacing:.03em;
+}
+.result-level-badge.level-up{
+  background:color-mix(in srgb,var(--color-accent) 20%,var(--color-surface));
+  color:#7a5c00;
+  border-color:var(--color-accent);
+  animation:levelUpPop .5s cubic-bezier(.36,.07,.19,.97) both;
+}
+[data-theme="dark"] .result-level-badge.level-up{color:var(--color-accent)}
+@keyframes levelUpPop{
+  0%{transform:scale(.8);opacity:0}
+  60%{transform:scale(1.12);opacity:1}
+  100%{transform:scale(1)}
+}
+
+/* Badge de perfect streak */
+.perfect-streak-badge{
+  display:inline-block;
+  margin:0 auto var(--space-3);
+  padding:.35rem 1rem;
+  border-radius:var(--radius-full);
+  font-size:var(--text-xs);
+  font-weight:800;
+  background:color-mix(in srgb,var(--color-error) 15%,var(--color-surface));
+  color:var(--color-error);
+  border:1px solid color-mix(in srgb,var(--color-error) 30%,transparent);
+}
+
 .score-ring{width:140px;height:140px;margin:0 auto var(--space-5);border-radius:50%;background:conic-gradient(var(--color-primary) calc(var(--percent)*1%),var(--color-surface-2) 0);padding:10px}
 .score-inner{width:100%;height:100%;border-radius:50%;background:var(--color-bg);display:grid;place-items:center}
 .score-inner strong{font-size:1.9rem;line-height:1;color:var(--color-primary)}
@@ -204,6 +251,7 @@ main{padding:0 var(--space-4) var(--space-10);flex:1}
 .result-card>p{color:var(--color-text-muted);font-size:var(--text-sm);max-width:32ch;margin:0 auto var(--space-5)}
 .result-stats{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);margin-bottom:var(--space-2)}
 
+/* ── Mascote ── */
 .mascote-wrap{display:flex;flex-direction:column;align-items:center;gap:var(--space-3);margin-bottom:var(--space-5);}
 .mascote-img{width:130px;height:130px;object-fit:contain;transform-origin:bottom center;}
 .mascote-img.bounce{animation:mascoteBounce .7s cubic-bezier(.36,.07,.19,.97) both;}
@@ -217,6 +265,20 @@ main{padding:0 var(--space-4) var(--space-10);flex:1}
 @keyframes fadeIn{to{opacity:1}}
 .mascote-fala::before{content:'';position:absolute;top:-11px;left:50%;transform:translateX(-50%);border:6px solid transparent;border-bottom-color:var(--color-primary);}
 .mascote-fala::after{content:'';position:absolute;top:-8px;left:50%;transform:translateX(-50%);border:5px solid transparent;border-bottom-color:var(--color-surface-2);}
+
+/* ── Level-Up Toast ── */
+#levelUpToast{
+  position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:var(--color-primary);color:var(--color-text-inverse);
+  padding:.7rem 1.4rem;border-radius:var(--radius-full);
+  font-size:var(--text-sm);font-weight:800;
+  box-shadow:var(--shadow-md);white-space:nowrap;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease,transform .3s ease;
+  z-index:100;
+}
+#levelUpToast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 .review-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;padding:var(--space-3) var(--space-4);background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-md);font-size:var(--text-sm);font-weight:700;color:var(--color-text);cursor:pointer;transition:background .18s;}
 .review-toggle:hover{background:var(--color-border)}
@@ -499,7 +561,6 @@ main{padding:0 var(--space-4) var(--space-10);flex:1}
   margin-top:var(--space-4);
   box-shadow:var(--shadow-sm);
 }
-/* agrupa avatar + textos lado a lado */
 .profile-left{
   display:flex;
   align-items:center;
