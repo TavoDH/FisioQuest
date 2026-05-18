@@ -75,12 +75,7 @@ function buildModuleList(areaKey) {
   area.modules.forEach(mod => {
     const card  = document.createElement('button');
     card.className = 'module-card';
-    card.innerHTML = `
-      <div class="module-info">
-        <strong>${mod.icon || ''} ${mod.title}</strong>
-      </div>
-      <span class="module-arrow">→</span>
-    `;
+    card.innerHTML = `<span class="module-label">${mod.icon || ''} ${mod.title}</span>`;
     card.addEventListener('click', () => startLesson(areaKey, mod.id));
     list.appendChild(card);
   });
