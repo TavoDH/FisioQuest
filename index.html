@@ -6,20 +6,17 @@
   <meta name="theme-color" content="#0d8f67" />
   <meta name="description" content="FisioQuest - Protótipo gamificado de apoio ao ensino nas ciências da saúde" />
   <title>FisioQuest</title>
-
-  <!-- PWA -->
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="logo.png" />
   <link rel="icon" type="image/png" href="logo.png" />
-
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+<canvas id="confettiCanvas"></canvas>
 <div class="app">
 
-  <!-- TOPBAR -->
   <header class="topbar">
     <div class="brand" aria-label="FisioQuest">
       <img src="logo.png" alt="Logo FisioQuest" width="40" height="40" style="border-radius:50%;object-fit:cover;" />
@@ -43,7 +40,6 @@
         <p>Revise anatomia e fisiologia com quizzes interativos, feedback imediato e progressão por pontos.</p>
         <button class="btn btn-inverse" id="quickStartBtn">Começar agora →</button>
       </div>
-
       <div class="stats-row">
         <div class="stat-card">
           <strong id="statXp">0 XP</strong>
@@ -58,21 +54,15 @@
           <span>Nível</span>
         </div>
       </div>
-
-      <!-- ÁREAS ATIVAS -->
       <div class="section-header">
         <h2>Áreas de Estudo</h2>
         <span>2 áreas disponíveis</span>
       </div>
-
       <div class="area-tabs" id="areaTabs">
         <button class="area-tab active" data-area="anatomia">🩻 Anatomia</button>
         <button class="area-tab" data-area="fisiologia">❤️ Fisiologia</button>
       </div>
-
       <div class="module-list" id="moduleList"></div>
-
-      <!-- ÁREAS FUTURAS (bloqueadas) -->
       <div class="section-header" style="margin-top:var(--space-8)">
         <h2>Em breve</h2>
         <span>Expansões futuras</span>
@@ -83,15 +73,12 @@
         <div class="future-card">🏃 Biomecânica<span>Em desenvolvimento</span></div>
         <div class="future-card">📋 Avaliação Clínica<span>Em desenvolvimento</span></div>
       </div>
-
-      <!-- RECURSOS BLOQUEADOS -->
       <div class="locked-features">
         <div class="locked-item">🏆 Ranking <span class="badge-soon">Em breve</span></div>
         <div class="locked-item">🎖️ Conquistas <span class="badge-soon">Em breve</span></div>
         <div class="locked-item">👤 Perfil/Login <span class="badge-soon">Em breve</span></div>
         <div class="locked-item">📊 Relatórios <span class="badge-soon">Em breve</span></div>
       </div>
-
       <p class="install-tip">📱 No celular, use "Adicionar à tela inicial" para instalar o FisioQuest.</p>
     </section>
 
@@ -104,7 +91,6 @@
         </div>
         <span class="tag" id="questionCounter">1/10</span>
       </div>
-
       <div class="progress-wrap">
         <div class="progress-labels">
           <span>Progresso</span>
@@ -114,7 +100,6 @@
           <div class="progress-fill" id="progressFill"></div>
         </div>
       </div>
-
       <div class="question-card">
         <p class="question-text" id="questionText"></p>
         <div class="answers" id="answers"></div>
@@ -129,13 +114,10 @@
     <!-- RESULTADO -->
     <section id="resultScreen" class="screen">
       <div class="result-card">
-
-        <!-- MASCOTE -->
         <div class="mascote-wrap">
-          <img src="mascote.png" alt="Mascote FisioQuest" class="mascote-img" loading="lazy" />
+          <img src="mascote.png" alt="Mascote FisioQuest" class="mascote-img" id="mascoteImg" loading="lazy" />
           <div class="mascote-fala" id="mascoteFala">Você terminou a atividade!</div>
         </div>
-
         <div class="score-ring" id="scoreRing" style="--percent:0">
           <div class="score-inner">
             <strong id="finalScore">0%</strong>
@@ -154,7 +136,17 @@
             <span>Ganhos</span>
           </div>
         </div>
-        <div class="card-actions">
+
+        <!-- REVISÃO DE ERROS -->
+        <div id="reviewSection" style="display:none;width:100%;text-align:left;margin-top:var(--space-4)">
+          <button class="review-toggle" id="reviewToggle">
+            📋 Ver questões que errei <span id="reviewCount"></span>
+            <span class="review-arrow">▼</span>
+          </button>
+          <div class="review-list" id="reviewList"></div>
+        </div>
+
+        <div class="card-actions" style="margin-top:var(--space-5)">
           <button class="btn btn-primary" id="restartModuleBtn">🔄 Repetir módulo</button>
           <button class="btn btn-ghost" id="goHomeFromResultBtn">← Escolher outro módulo</button>
         </div>
@@ -163,7 +155,6 @@
 
   </main>
 
-  <!-- BOTTOM NAV -->
   <nav class="bottom-nav" aria-label="Navegação">
     <button class="nav-btn active" data-target="homeScreen">🏠<span>Início</span></button>
     <button class="nav-btn" data-target="lessonScreen">📚<span>Lição</span></button>
