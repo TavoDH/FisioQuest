@@ -1,5 +1,6 @@
-/* FisioQuest — app.js v5
-   + Feedback estruturado com card explicativo
+/* FisioQuest — app.js v6
+   + Onboarding primeiro acesso
+   + Card de perfil na home
 */
 
 const QUESTIONS_PER_SESSION = 10;
@@ -24,6 +25,112 @@ let state = {
   wrongAnswers:  [],
 };
 
+// ──────────────────────────────────────────────────
+// PERFIL
+// ──────────────────────────────────────────────────
+function loadProfile() {
+  try { return JSON.parse(localStorage.getItem('fq_profile') || 'null'); }
+  catch { return null; }
+}
+function saveProfile(profile) {
+  localStorage.setItem('fq_profile', JSON.stringify(profile));
+}
+
+function renderProfileCard() {
+  const profile = loadProfile();
+  const nameEl  = document.getElementById('profileName');
+  const subEl   = document.getElementById('profileSub');
+  const avatarEl = document.getElementById('profileAvatar');
+  if (!nameEl) return;
+
+  if (profile && profile.nome) {
+    nameEl.textContent  = profile.nome;
+    avatarEl.textContent = profile.avatar || '🧑‍⚕️';
+    const parts = [profile.curso, profile.periodo].filter(Boolean);
+    subEl.textContent   = parts.length ? parts.join(' • ') : (profile.instituicao || '—');
+  } else {
+    nameEl.textContent   = 'Estudante';
+    avatarEl.textContent = '🧑‍⚕️';
+    subEl.textContent    = '—';
+  }
+}
+
+function openOnboarding(prefill) {
+  const overlay = document.getElementById('onboardingOverlay');
+  overlay.style.display = 'flex';
+
+  // Preenche campos se vier de edição
+  const p = prefill || loadProfile() || {};
+  document.getElementById('inputNome').value         = p.nome         || '';
+  document.getElementById('selectInstituicao').value = p.instituicao  || '';
+  document.getElementById('selectCurso').value       = p.curso        || '';
+  document.getElementById('selectPeriodo').value     = p.periodo      || '';
+
+  // Avatar
+  document.querySelectorAll('.avatar-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.avatar === (p.avatar || '🧑‍⚕️'));
+  });
+}
+
+function closeOnboarding() {
+  document.getElementById('onboardingOverlay').style.display = 'none';
+}
+
+function initOnboarding() {
+  const overlay   = document.getElementById('onboardingOverlay');
+  const saveBtn   = document.getElementById('onboardingSaveBtn');
+  const editBtn   = document.getElementById('profileEditBtn');
+  const avatarGrid = document.getElementById('avatarGrid');
+
+  // Seleção de avatar
+  avatarGrid.addEventListener('click', (e) => {
+    const btn = e.target.closest('.avatar-btn');
+    if (!btn) return;
+    document.querySelectorAll('.avatar-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+
+  // Salvar perfil
+  saveBtn.addEventListener('click', () => {
+    const nome = document.getElementById('inputNome').value.trim();
+    if (!nome) {
+      document.getElementById('inputNome').focus();
+      document.getElementById('inputNome').style.borderColor = 'var(--color-error)';
+      setTimeout(() => document.getElementById('inputNome').style.borderColor = '', 1500);
+      return;
+    }
+    const avatarAtivo = document.querySelector('.avatar-btn.active');
+    const profile = {
+      nome,
+      avatar:       avatarAtivo ? avatarAtivo.dataset.avatar : '🧑‍⚕️',
+      instituicao:  document.getElementById('selectInstituicao').value,
+      curso:        document.getElementById('selectCurso').value,
+      periodo:      document.getElementById('selectPeriodo').value,
+    };
+    saveProfile(profile);
+    renderProfileCard();
+    closeOnboarding();
+  });
+
+  // Fechar clicando fora do card
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay && loadProfile()) closeOnboarding();
+  });
+
+  // Botão de edição na home
+  editBtn.addEventListener('click', () => openOnboarding());
+
+  // Primeiro acesso: abre automaticamente
+  if (!loadProfile()) {
+    openOnboarding();
+  }
+
+  renderProfileCard();
+}
+
+// ──────────────────────────────────────────────────
+// HISTÓRICO
+// ──────────────────────────────────────────────────
 function loadHistory() {
   try { return JSON.parse(localStorage.getItem('fq_history') || '[]'); }
   catch { return []; }
@@ -141,7 +248,6 @@ function renderQuestion() {
     answersEl.appendChild(btn);
   });
 
-  // Reseta feedback
   document.getElementById('feedbackPlaceholder').style.display = 'block';
   const card = document.getElementById('feedbackCard');
   card.classList.remove('visible', 'is-correct', 'is-wrong');
@@ -164,13 +270,12 @@ function showFeedbackCard(isCorrect, correctText, explanation) {
   const explainTxt   = document.getElementById('feedbackExplainText');
 
   card.classList.remove('is-correct', 'is-wrong', 'visible');
-  void card.offsetWidth; // força reinício da animação
+  void card.offsetWidth;
 
   if (isCorrect) {
     icon.textContent   = '✅';
     status.textContent = 'Resposta correta!';
     card.classList.add('is-correct');
-    // Mesmo acertando, mostra qual é a correta para reforço
     correctTxt.textContent = correctText;
   } else {
     icon.textContent   = '❌';
@@ -432,6 +537,7 @@ function renderSessionLog(sessions) {
 // ─ Init
 document.addEventListener('DOMContentLoaded', () => {
   updateHUD();
+  initOnboarding();
 
   document.querySelectorAll('.area-tab').forEach(tab => {
     tab.addEventListener('click', () => {
