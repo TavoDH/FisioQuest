@@ -16,11 +16,7 @@
   <!-- TOPBAR -->
   <header class="topbar">
     <div class="brand" aria-label="FisioQuest">
-      <svg viewBox="0 0 64 64" fill="none" aria-hidden="true" width="40" height="40">
-        <rect x="6" y="6" width="52" height="52" rx="18" fill="currentColor" opacity=".16"/>
-        <path d="M20 20h24v8H28v8h12v8H28v12h-8V20Z" fill="currentColor"/>
-        <circle cx="46" cy="18" r="6" fill="#f2c94c"/>
-      </svg>
+      <img src="logo.png" alt="Logo FisioQuest" width="40" height="40" style="border-radius:50%;object-fit:cover;" />
       <div>
         <strong>FisioQuest</strong>
         <span>Protótipo gamificado</span>
@@ -127,6 +123,13 @@
     <!-- RESULTADO -->
     <section id="resultScreen" class="screen">
       <div class="result-card">
+
+        <!-- MASCOTE -->
+        <div class="mascote-wrap">
+          <img src="mascote.png" alt="Mascote FisioQuest" class="mascote-img" loading="lazy" />
+          <div class="mascote-fala" id="mascoteFala">Você terminou a atividade!</div>
+        </div>
+
         <div class="score-ring" id="scoreRing" style="--percent:0">
           <div class="score-inner">
             <strong id="finalScore">0%</strong>
