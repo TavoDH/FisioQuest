@@ -82,4 +82,58 @@ const AREAS = {
           {q:'O tarso corresponde à região do:',options:['Punho','Cotovelo','Tornozelo/retropé','Quadril'],answer:2,explain:'O tarso é o conjunto de ossos do tornozelo e retropé.'},
           {q:'A região axilar refere-se à:',options:['Virilha','Axila (sovaco)','Poplítea','Cubital'],answer:1,explain:'A região axilar corresponde à axila, área abaixo da articulação do ombro.'},
           {q:'A região poplítea localiza-se:',options:['Face anterior do joelho','Face posterior do joelho','Face lateral do quadril','Região lombar'],answer:1,explain:'A região poplítea é a fossa posterior ao joelho.'},
-          {q:'A cintura pélvica é formada por:',options:['Fêmur e tíbia','Ossos coxais, sacro e cóccix','Vértebras lombares e sacro','Ilíaco e fêmur apenas'],answer:1,explain:'A cintura
+          {q:'A cintura pélvica é formada por:',options:['Fêmur e tíbia','Ossos coxais, sacro e cóccix','Vértebras lombares e sacro','Ilíaco e fêmur apenas'],answer:1,explain:'A cintura pélvica é composta pelos ossos coxais, sacro e cóccix.'},
+          {q:'O braço (segmento do membro superior) situa-se entre:',options:['Antebraço e mão','Ombro e cotovelo','Punho e dedos','Cotovelo e punho'],answer:1,explain:'O braço está entre o ombro (proximal) e o cotovelo (distal).'},
+          {q:'A coxa situa-se entre:',options:['Joelho e tornozelo','Quadril e joelho','Pé e perna','Tornozelo e pelve'],answer:1,explain:'A coxa é o segmento entre o quadril (proximal) e o joelho (distal).'},
+          {q:'A região inguinal (virilha) localiza-se:',options:['Entre tórax e abdome','Entre abdome e coxa','Na fossa poplítea','Na região axilar'],answer:1,explain:'A região inguinal situa-se na junção entre abdome e coxa.'},
+          {q:'Os dedos da mão são chamados de:',options:['Falanges','Metacarpos','Carpos','Artelhos'],answer:0,explain:'Os dedos da mão são formados pelas falanges (proximal, média e distal). Artelhos são os dedos do pé.'},
+          {q:'A nuca corresponde à região:',options:['Anterior do pescoço','Posterior do pescoço','Lateral do crânio','Anterior do tórax'],answer:1,explain:'A nuca é a face posterior do pescoço, região occipital inferior.'},
+        ]
+      },
+      {
+        id: 'coluna_vertebral',
+        icon: '🔗',
+        color: '#fff8e8',
+        title: 'Coluna Vertebral',
+        subtitle: 'Vértebras, curvaturas e estruturas',
+        questions: [
+          {q:'Quantas vértebras compõem a coluna vertebral adulta normalmente?',options:['24 móveis + sacro + cóccix','33 a 34 no total','Apenas 24','30 no total'],answer:1,explain:'A coluna possui 7 cervicais + 12 torácicas + 5 lombares + sacro (5 fundidas) + cóccix (3-4 fundidas), totalizando 33-34.'},
+          {q:'Qual é a curvatura fisiológica da região lombar?',options:['Cifose','Escoliose','Lordose','Retificação'],answer:2,explain:'A região lombar apresenta lordose (curvatura convexa anterior) como curvatura fisiológica normal.'},
+          {q:'A curvatura torácica fisiológica é classificada como:',options:['Lordose','Cifose','Escoliose','Hiperlordose'],answer:1,explain:'A região torácica apresenta cifose fisiológica (convexidade posterior).'},
+          {q:'O atlas é a vértebra:',options:['C2','C1','L1','T1'],answer:1,explain:'O atlas é C1, primeira vértebra cervical, que se articula com o crânio (côndilos occipitais).'},
+          {q:'O áxis (C2) possui uma projeção chamada:',options:['Processo espinhoso','Dente (processo odontóide)','Tubérculo anterior','Processo transverso'],answer:1,explain:'O áxis possui o dente (processo odontóide) que se articula com o atlas, permitindo rotação da cabeça.'},
+          {q:'O disco intervertebral é formado por:',options:['Cartilagem hialina e osso','Anel fibroso e núcleo pulposo','Ligamento e fáscia','Periósteo e medula'],answer:1,explain:'O disco intervertebral é composto pelo anel fibroso (anulus fibrosus) na periferia e núcleo pulposo no centro.'},
+          {q:'Qual região vertebral possui processos transversos com forames para a artéria vertebral?',options:['Torácica','Lombar','Cervical','Sacral'],answer:2,explain:'As vértebras cervicais possuem forames transversários por onde passa a artéria vertebral.'},
+          {q:'O sacro é formado pela fusão de quantas vértebras?',options:['3','4','5','6'],answer:2,explain:'O sacro é formado pela fusão de 5 vértebras sacrais, formando um osso triangular.'},
+          {q:'Qual ligamento percorre toda a face anterior dos corpos vertebrais?',options:['Ligamento longitudinal posterior','Ligamento longitudinal anterior','Ligamento amarelo','Ligamento interespinhoso'],answer:1,explain:'O ligamento longitudinal anterior percorre a face anterior de todos os corpos vertebrais, limitando a extensão.'},
+          {q:'A vértebra proeminente (C7) é caracterizada por ter:',options:['Processo espinhoso curto e bífido','Processo espinhoso longo e não bífido, palpável','Forame transversário grande','Corpo vertebral menor'],answer:1,explain:'C7 tem processo espinhoso longo, único e proeminente, facilmente palpável na base do pescoço.'},
+        ]
+      },
+    ]
+  },
+  fisiologia: {
+    label: 'Fisiologia',
+    icon: '🫀',
+    modules: [
+      {
+        id: 'cardiovascular',
+        icon: '❤️',
+        color: '#fff0f0',
+        title: 'Sistema Cardiovascular',
+        subtitle: 'Coração, circulação e pressão arterial',
+        questions: [
+          {q:'O débito cardíaco é definido como:',options:['Pressão sistólica menos diastólica','Volume sistólico multiplicado pela frequência cardíaca','Frequência cardíaca em repouso','Volume de sangue total do corpo'],answer:1,explain:'Débito cardíaco (DC) = Volume sistólico (VS) × Frequência cardíaca (FC). Representa o volume bombeado por minuto.'},
+          {q:'A pressão arterial sistólica representa:',options:['Pressão durante o relaxamento ventricular','Pressão mínima nos vasos','Pressão durante a contração ventricular (sístole)','Resistência vascular periférica'],answer:2,explain:'A pressão sistólica é a pressão máxima nos vasos, gerada durante a contração (sístole) ventricular.'},
+          {q:'Valores de pressão arterial considerados normais para adultos são:',options:['160/100 mmHg','140/90 mmHg','120/80 mmHg','100/60 mmHg'],answer:2,explain:'A pressão arterial normal é inferior a 120/80 mmHg. Valores ≥ 140/90 mmHg caracterizam hipertensão.'},
+          {q:'O nó sinoatrial (NSA) é considerado o marcapasso cardíaco porque:',options:['Está localizado no ventrículo esquerdo','Gera impulsos elétricos espontâneos com maior frequência','É o maior nó do coração','Recebe sangue oxigenado diretamente'],answer:1,explain:'O NSA gera despolarizações espontâneas com frequência de 60-100 bpm, ditando o ritmo cardíaco.'},
+          {q:'Durante o exercício físico, o débito cardíaco aumenta principalmente por:',options:['Redução da frequência cardíaca','Aumento do volume sistólico e da frequência cardíaca','Vasoconstrição generalizada','Redução do retorno venoso'],answer:1,explain:'No exercício, o aumento do DC se deve ao aumento do VS (pelo maior retorno venoso) e da FC (pelo sistema simpático).'},
+          {q:'A circulação pulmonar conduz sangue:',options:['Do coração esquerdo para o corpo','Do coração direito para os pulmões e de volta ao coração esquerdo','Dos rins para o coração','Do intestino para o fígado'],answer:1,explain:'A circulação pulmonar (pequena circulação) leva sangue venoso do ventrículo direito aos pulmões para hematose e retorna ao átrio esquerdo.'},
+          {q:'A sístole ventricular esquerda gera pressão que impulsiona o sangue para:',options:['Artéria pulmonar','Veia cava','Aorta','Artéria coronária direita'],answer:2,explain:'O ventrículo esquerdo ejeta sangue oxigenado pela válvula aórtica para a aorta, iniciando a circulação sistêmica.'},
+          {q:'A frequência cardíaca de repouso em adultos saudáveis é normalmente:',options:['30-50 bpm','60-100 bpm','100-120 bpm','120-150 bpm'],answer:1,explain:'A frequência cardíaca normal de repouso em adultos é de 60 a 100 batimentos por minuto.'},
+          {q:'O retorno venoso ao coração é facilitado principalmente por:',options:['Contração cardíaca apenas','Ação da bomba muscular, válvulas venosas e pressão negativa intratorácica','Pressão arterial alta','Vasoconstrição das artérias'],answer:1,explain:'O retorno venoso depende da bomba muscular (contração dos músculos), válvulas venosas que impedem refluxo e pressão negativa na inspiração.'},
+          {q:'A resistência vascular periférica total (RVP) influencia principalmente:',options:['Frequência cardíaca','Volume sistólico','Pressão arterial diastólica','Hematócrito'],answer:2,explain:'A RVP é o principal determinante da pressão diastólica. Quando os vasos se contraem (vasoconstrição), a RVP e a pressão diastólica aumentam.'},
+        ]
+      },
+    ]
+  },
+};
