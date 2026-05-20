@@ -86,19 +86,44 @@ main{padding:0 var(--space-4) var(--space-10);flex:1}
 .section-header h2{font-size:var(--text-lg)}
 .section-header span{font-size:var(--text-xs);color:var(--color-text-muted)}
 
+/* ── Wrapper das abas com fade lateral ── */
+.area-tabs-wrap{
+  position:relative;
+  margin:0 calc(var(--space-4)*-1) var(--space-4);
+}
+.area-tabs-wrap::after{
+  content:'';
+  position:absolute;
+  top:0;right:0;
+  width:56px;
+  height:100%;
+  background:linear-gradient(to left, var(--color-bg) 30%, transparent);
+  pointer-events:none;
+  z-index:1;
+}
 /* ── Abas de área com scroll horizontal ── */
 .area-tabs{
   display:flex;
   gap:var(--space-2);
-  margin-bottom:var(--space-4);
   overflow-x:auto;
   flex-wrap:nowrap;
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
-  padding-bottom:2px;
+  padding:0 var(--space-4) var(--space-2);
 }
 .area-tabs::-webkit-scrollbar{display:none}
-.area-tab{padding:.55rem 1.1rem;border-radius:var(--radius-full);font-size:var(--text-sm);font-weight:700;background:var(--color-surface);border:1px solid var(--color-border);color:var(--color-text-muted);transition:all .18s ease;white-space:nowrap;flex-shrink:0;}
+.area-tab{
+  padding:.55rem 1.1rem;
+  border-radius:var(--radius-full);
+  font-size:var(--text-sm);
+  font-weight:700;
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  color:var(--color-text-muted);
+  transition:all .18s ease;
+  white-space:nowrap;
+  flex-shrink:0;
+}
 .area-tab.active{background:var(--color-primary);color:var(--color-text-inverse);border-color:var(--color-primary)}
 
 .module-list{display:grid;gap:var(--space-3)}
