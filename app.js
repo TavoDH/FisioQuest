@@ -190,6 +190,23 @@ function showScreen(id) {
   if (id === 'statsScreen') renderStats();
 }
 
+// ── Toast genérico ────────────────────────────────────────────
+let _toastTimer = null;
+function showToast(msg) {
+  let toast = document.getElementById('appToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'appToast';
+    document.querySelector('.app').appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.remove('show');
+  void toast.offsetWidth;
+  toast.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
 // ── HUD ───────────────────────────────────────────────
 function updateHUD() {
   const lvl = getLevelData(state.xp);
@@ -756,7 +773,14 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const t = btn.dataset.target;
-      if ((t === 'lessonScreen' || t === 'resultScreen') && state.questions.length === 0) return;
+
+      // Botão Lição sem módulo selecionado: orientar o usuário
+      if (t === 'lessonScreen' && state.questions.length === 0) {
+        showToast('📚 Escolha um módulo primeiro');
+        showScreen('homeScreen');
+        return;
+      }
+
       if (t !== 'lessonScreen' && document.getElementById('lessonScreen').classList.contains('active') && isLessonInProgress()) {
         showExitModal(() => showScreen(t));
         return;
