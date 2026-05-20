@@ -1,6 +1,5 @@
-/* FisioQuest — app.js v8
-   + Áreas geradas dinamicamente a partir do objeto AREAS
-   + Contador de áreas automático
+/* FisioQuest — app.js v9
+   + Confirmação ao sair no meio da lição
 */
 
 const QUESTIONS_PER_SESSION = 10;
@@ -219,9 +218,6 @@ function updateHUD() {
 }
 
 // ── ABAS DE ÁREAS (dinâmico) ────────────────────────────
-// Lê o objeto AREAS do questions.js e gera os botões automaticamente.
-// Para adicionar uma nova área, basta incluí-la no questions.js —
-// ela aparecerá aqui sem precisar alterar o HTML.
 function buildAreaTabs() {
   const tabsEl  = document.getElementById('areaTabs');
   const countEl = document.getElementById('areaCount');
@@ -572,6 +568,77 @@ function showLevelUpToast(lvl) {
 }
 
 // ──────────────────────────────────────────────────
+// MODAL DE CONFIRMAÇÃO DE SAÍDA
+// ──────────────────────────────────────────────────
+function isLessonInProgress() {
+  // Considera "em andamento" se já respondeu ao menos 1 questão
+  // OU se está no meio de uma (qIndex > 0)
+  return state.questions.length > 0 && (state.qIndex > 0 || state.answered);
+}
+
+function showExitModal(onConfirm) {
+  let modal = document.getElementById('exitModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'exitModal';
+    modal.className = 'exit-modal-overlay';
+    modal.innerHTML = `
+      <div class="exit-modal-card">
+        <div class="exit-modal-icon">⚠️</div>
+        <h3>Sair da lição?</h3>
+        <p>Você está na questão <strong id="exitModalProgress"></strong>.<br>
+           Se sair agora, o progresso desta sessão <strong>não será salvo</strong> e você perderá a sequência atual.</p>
+        <div class="exit-modal-actions">
+          <button class="btn btn-ghost" id="exitModalCancel">Continuar lição</button>
+          <button class="btn btn-exit" id="exitModalConfirm">Sair mesmo assim</button>
+        </div>
+      </div>`;
+    document.querySelector('.app').appendChild(modal);
+  }
+
+  const answered = state.qIndex + (state.answered ? 1 : 0);
+  const total    = state.questions.length;
+  document.getElementById('exitModalProgress').textContent =
+    `${answered}/${total} (${Math.round((answered/total)*100)}%)`;
+
+  modal.classList.add('visible');
+
+  const cancelBtn  = document.getElementById('exitModalCancel');
+  const confirmBtn = document.getElementById('exitModalConfirm');
+
+  // Fecha ao clicar no backdrop
+  const backdropHandler = (e) => {
+    if (e.target === modal) closeExitModal();
+  };
+  modal.addEventListener('click', backdropHandler);
+
+  const cleanup = () => {
+    cancelBtn.removeEventListener('click', cancelHandler);
+    confirmBtn.removeEventListener('click', confirmHandler);
+    modal.removeEventListener('click', backdropHandler);
+  };
+
+  const cancelHandler = () => { cleanup(); closeExitModal(); };
+  const confirmHandler = () => {
+    cleanup();
+    closeExitModal();
+    // Zera o streak ao sair — penalidade por abandono
+    state.streak = 0;
+    save();
+    updateHUD();
+    onConfirm();
+  };
+
+  cancelBtn.addEventListener('click', cancelHandler);
+  confirmBtn.addEventListener('click', confirmHandler);
+}
+
+function closeExitModal() {
+  const modal = document.getElementById('exitModal');
+  if (modal) modal.classList.remove('visible');
+}
+
+// ──────────────────────────────────────────────────
 // TELA DE ESTATÍSTICAS
 // ──────────────────────────────────────────────────
 function renderStats() {
@@ -657,8 +724,6 @@ function renderSessionLog(sessions) {
 document.addEventListener('DOMContentLoaded', () => {
   updateHUD();
   initOnboarding();
-
-  // Gera as abas de áreas automaticamente a partir do AREAS
   buildAreaTabs();
 
   document.getElementById('nextBtn').addEventListener('click', () => {
@@ -668,7 +733,15 @@ document.addEventListener('DOMContentLoaded', () => {
     else renderQuestion();
   });
 
-  document.getElementById('backHomeBtn').addEventListener('click',         () => showScreen('homeScreen'));
+  // Botão "← Voltar" — pede confirmação se lição em andamento
+  document.getElementById('backHomeBtn').addEventListener('click', () => {
+    if (isLessonInProgress()) {
+      showExitModal(() => showScreen('homeScreen'));
+    } else {
+      showScreen('homeScreen');
+    }
+  });
+
   document.getElementById('restartModuleBtn').addEventListener('click',    () => startLesson(state.currentArea, state.currentModule));
   document.getElementById('goHomeFromResultBtn').addEventListener('click', () => showScreen('homeScreen'));
 
@@ -679,10 +752,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Nav inferior — pede confirmação se tentar sair durante lição
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const t = btn.dataset.target;
       if ((t === 'lessonScreen' || t === 'resultScreen') && state.questions.length === 0) return;
+      if (t !== 'lessonScreen' && document.getElementById('lessonScreen').classList.contains('active') && isLessonInProgress()) {
+        showExitModal(() => showScreen(t));
+        return;
+      }
       showScreen(t);
     });
   });
