@@ -135,6 +135,7 @@ function showScreen(id) {
   });
 
   if (id === 'statsScreen') renderStats();
+  if (id === 'rankingScreen') renderRanking();
 }
 
 // ── Área / Módulos ─────────────────────────────────────────────
@@ -692,6 +693,61 @@ function initTheme() {
   });
 }
 
+function renderRanking() {
+  const profile = loadProfile();
+  const myName = profile?.nome || 'Você';
+  const myAvatar = profile?.avatar || '👦';
+  const myCourse = profile?.curso || 'Fisioterapia';
+
+  const players = [
+    { name: 'Ana Lima', avatar: '🩺', course: 'Fisioterapia', xp: 1450 },
+    { name: 'Carlos M.', avatar: '🧠', course: 'Medicina', xp: 1320 },
+    { name: 'Fernanda S.', avatar: '🔬', course: 'Biomedicina', xp: 1180 },
+    { name: myName, avatar: myAvatar, course: myCourse, xp: state.xp, me: true },
+    { name: 'Juliana R.', avatar: '💪', course: 'Ed. Física', xp: 760 },
+    { name: 'Pedro A.', avatar: '⚕️', course: 'Enfermagem', xp: 540 },
+    { name: 'Marina T.', avatar: '🩻', course: 'Fisioterapia', xp: 320 }
+  ];
+
+  const sorted = [...players].sort((a, b) => b.xp - a.xp);
+
+  const podium = sorted.slice(0, 3);
+  const podiumVisual = [podium[1], podium[0], podium[2]].filter(Boolean);
+
+  const podiumEl = document.getElementById('rankingPodium');
+  const listEl = document.getElementById('rankingList');
+
+  podiumEl.innerHTML = podiumVisual.map(player => {
+    const position = sorted.findIndex(p => p.name === player.name && p.xp === player.xp) + 1;
+    return `
+      <div class="podium-card ${position === 1 ? 'first' : ''} ${player.me ? 'me' : ''}">
+        <div class="podium-place">${position}º lugar</div>
+        <div class="podium-avatar">${player.avatar}</div>
+        <div class="podium-name">
+          ${player.name}
+          ${player.me ? '<span class="ranking-badge">Você</span>' : ''}
+        </div>
+        <div class="podium-xp">${player.xp} XP</div>
+      </div>
+    `;
+  }).join('');
+
+  listEl.innerHTML = sorted.map((player, index) => `
+    <div class="ranking-item ${player.me ? 'me' : ''}">
+      <div class="ranking-position">${index + 1}</div>
+      <div class="ranking-avatar">${player.avatar}</div>
+      <div class="ranking-info">
+        <div class="ranking-name">
+          ${player.name}
+          ${player.me ? '<span class="ranking-badge">Você</span>' : ''}
+        </div>
+        <div class="ranking-sub">${player.course}</div>
+      </div>
+      <div class="ranking-score">${player.xp} XP</div>
+    </div>
+  `).join('');
+}
+
 // ── Init ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   updateHUD();
@@ -716,8 +772,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  document.getElementById('restartModuleBtn').addEventListener('click',    () => startLesson(state.currentArea, state.currentModule));
-  document.getElementById('goHomeFromResultBtn').addEventListener('click', () => showScreen('homeScreen'));
+  document.getElementById('restartModuleBtn').addEventListener('click', () =>
+    startLesson(state.currentArea, state.currentModule)
+  );
+
+  document.getElementById('goHomeFromResultBtn').addEventListener('click', () =>
+    showScreen('homeScreen')
+  );
+
   document.getElementById('shareResultBtn')?.addEventListener('click', shareResult);
 
   document.getElementById('clearStatsBtn').addEventListener('click', () => {
@@ -725,6 +787,15 @@ document.addEventListener('DOMContentLoaded', () => {
       saveHistory([]);
       renderStats();
     }
+  });
+
+  // Ranking
+  document.getElementById('openRankingBtn')?.addEventListener('click', () => {
+    showScreen('rankingScreen');
+  });
+
+  document.getElementById('backHomeFromRankingBtn')?.addEventListener('click', () => {
+    showScreen('homeScreen');
   });
 
   // Nav inferior — pede confirmação se tentar sair durante lição
