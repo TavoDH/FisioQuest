@@ -22,6 +22,7 @@
   --radius-sm:.5rem;--radius-md:.875rem;--radius-lg:1.25rem;--radius-full:999px;
   --shadow-sm:0 1px 3px rgba(0,0,0,.07);
   --shadow-md:0 8px 24px rgba(7,21,15,.09);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.18);
   --font-body:'Satoshi',system-ui,sans-serif;
 }
 [data-theme="dark"]{
@@ -40,6 +41,7 @@
   --color-error:#f26d6d;
   --shadow-sm:0 1px 3px rgba(0,0,0,.28);
   --shadow-md:0 8px 28px rgba(0,0,0,.32);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.45);
 }
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;padding:0;min-height:100%;font-family:var(--font-body);background:var(--color-bg);color:var(--color-text);-webkit-font-smoothing:antialiased;font-size:var(--text-base)}
@@ -618,4 +620,104 @@ main{padding:0 var(--space-4) var(--space-10);flex:1}
   gap:var(--space-3);
   min-width:0;
   flex:1;
-  overflow:hid
+  overflow:hidden;
+}
+.profile-avatar{
+  width:48px;height:48px;
+  border-radius:50%;
+  background:var(--color-surface-2);
+  border:2px solid var(--color-border);
+  display:grid;place-items:center;
+  font-size:1.6rem;
+  flex-shrink:0;
+}
+.profile-info{min-width:0}
+.profile-name{
+  font-size:var(--text-base);
+  font-weight:800;
+  color:var(--color-text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.profile-sub{
+  font-size:var(--text-xs);
+  color:var(--color-text-muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  margin-top:2px;
+}
+.profile-edit-btn{
+  width:40px;height:40px;
+  border-radius:50%;
+  background:var(--color-surface-2);
+  border:1px solid var(--color-border);
+  display:grid;place-items:center;
+  font-size:1.1rem;
+  flex-shrink:0;
+  transition:background .15s ease;
+}
+.profile-edit-btn:hover{background:var(--color-border)}
+
+/* ── Modal de confirmação de saída ─────────────────────── */
+.exit-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  backdrop-filter: blur(4px);
+}
+.exit-modal-overlay.visible {
+  display: flex;
+}
+.exit-modal-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8) var(--space-6);
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  animation: screenIn .28s cubic-bezier(.22,1,.36,1) both;
+}
+.exit-modal-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+.exit-modal-card h3 {
+  font-size: var(--text-lg);
+  color: var(--color-text);
+  margin: 0;
+}
+.exit-modal-card p {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 100%;
+}
+.exit-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+.btn-exit {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  padding: var(--space-3);
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color .15s ease;
+}
+.btn-exit:hover {
+  color: var(--color-error);
+}
