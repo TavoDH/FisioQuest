@@ -175,8 +175,7 @@ function buildAreaTabs() {
         <div class="module-icon">${mod.icon || '📚'}</div>
         <div class="module-info">
           <strong>${mod.title}</strong>
-          <span>${mod.subtitle || ''}</span>
-        </div>
+      </div>
         <div class="module-arrow">›</div>`;
       card.addEventListener('click', () => startLesson(activeArea, mod.id));
       list.appendChild(card);
