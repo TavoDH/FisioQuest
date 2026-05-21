@@ -261,7 +261,7 @@ function renderQuestion() {
 
   norm.options.forEach((opt, i) => {
     const btn = document.createElement('button');
-    btn.className   = 'answer-btn';
+    btn.className = 'answer';
     btn.textContent = opt;
     btn.addEventListener('click', () => handleAnswer(i));
     answersEl.appendChild(btn);
@@ -300,7 +300,7 @@ function handleAnswer(chosen) {
   updateHUD();
 
   // Estilizar botões
-  document.querySelectorAll('.answer-btn').forEach((btn, i) => {
+  document.querySelectorAll('.answer').forEach((btn, i) => {
     btn.disabled = true;
     if (i === q.answer) btn.classList.add('correct');
     else if (i === chosen) btn.classList.add('wrong');
