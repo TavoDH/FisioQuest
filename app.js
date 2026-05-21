@@ -913,6 +913,15 @@ document.addEventListener('DOMContentLoaded', () => {
     showScreen('homeScreen');
   });
 
+   // Sobre
+document.getElementById('openAboutBtn')?.addEventListener('click', () => {
+  showScreen('aboutScreen');
+});
+
+document.getElementById('backHomeFromAboutBtn')?.addEventListener('click', () => {
+  showScreen('homeScreen');
+});
+   
   // Nav inferior — pede confirmação se tentar sair durante lição
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
