@@ -160,7 +160,9 @@
         <button class="locked-item locked-item-button" id="openRankingBtn">
   🏆 Ranking <span class="badge-soon">Novo</span>
 </button>
-        <div class="locked-item">🎖️ Conquistas <span class="badge-soon">Em breve</span></div>
+        <button class="locked-item locked-item-button" id="openAchievementsBtn">
+  🎖️ Conquistas <span class="badge-soon">Novo</span>
+</button>
         <div class="locked-item">📊 Relatórios <span class="badge-soon">Em breve</span></div>
         <div class="locked-item">🔔 Notificações <span class="badge-soon">Em breve</span></div>
       </div>
@@ -318,6 +320,22 @@
 
     <div class="card-actions" style="margin-top:var(--space-5)">
       <button class="btn btn-ghost" id="backHomeFromRankingBtn">← Voltar ao início</button>
+    </div>
+  </div>
+</section>
+
+<section id="achievementsScreen" class="screen">
+  <div class="achievements-page">
+    <div class="stats-page-header">
+      <h2>🎖️ Conquistas</h2>
+      <p>Desbloqueie marcos conforme evolui no FisioQuest</p>
+    </div>
+
+    <div class="achievements-summary" id="achievementsSummary"></div>
+    <div class="achievements-list" id="achievementsList"></div>
+
+    <div class="card-actions" style="margin-top:var(--space-5)">
+      <button class="btn btn-ghost" id="backHomeFromAchievementsBtn">← Voltar ao início</button>
     </div>
   </div>
 </section>
