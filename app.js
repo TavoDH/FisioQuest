@@ -4,48 +4,52 @@
 
 const QUESTIONS_PER_SESSION = 10;
 
-// ── Tabela de níveis 1–20 ─────────────────────
-const LEVEL_TABLE = [
-  { level:  1, name: 'Calouro',         min:    0 },
-  { level:  2, name: 'Curioso',         min:   80 },
-  { level:  3, name: 'Estudante',       min:  200 },
-  { level:  4, name: 'Dedicado',        min:  380 },
-  { level:  5, name: 'Aplicado',        min:  620 },
-  { level:  6, name: 'Persistente',     min:  940 },
-  { level:  7, name: 'Competente',      min: 1360 },
-  { level:  8, name: 'Habilidoso',      min: 1900 },
-  { level:  9, name: 'Especialista Jr', min: 2580 },
-  { level: 10, name: 'Especialista',    min: 3420 },
-  { level: 11, name: 'Profissional',    min: 4440 },
-  { level: 12, name: 'Avançado',        min: 5660 },
-  { level: 13, name: 'Perito',          min: 7100 },
-  { level: 14, name: 'Expert',          min: 8780 },
-  { level: 15, name: 'Mestre Jr',       min:10720 },
-  { level: 16, name: 'Mestre',          min:12940 },
-  { level: 17, name: 'Mestre Sênior',   min:15460 },
-  { level: 18, name: 'Grão-Mestre',     min:18300 },
-  { level: 19, name: 'Lenda',           min:21480 },
-  { level: 20, name: 'FisioLenda 🏆',   min:25020 },
-];
+// ── Estado persistido ─────────────────────────────────────────
+const STORAGE_KEYS = {
+  xp:            'fq_xp',
+  streak:        'fq_streak',
+  perfectStreak: 'fq_perfect_streak',
+  profile:       'fq_profile',
+  history:       'fq_history',
+};
 
-function getLevelData(xp) {
-  let data = LEVEL_TABLE[0];
-  for (const l of LEVEL_TABLE) { if (xp >= l.min) data = l; }
-  return data;
+function loadState() {
+  return {
+    xp:            parseInt(localStorage.getItem(STORAGE_KEYS.xp) || '0', 10),
+    streak:        parseInt(localStorage.getItem(STORAGE_KEYS.streak) || '0', 10),
+    perfectStreak: parseInt(localStorage.getItem(STORAGE_KEYS.perfectStreak) || '0', 10),
+  };
 }
-function getLevelName(xp) { return getLevelData(xp).name; }
-function getLevelNumber(xp) { return getLevelData(xp).level; }
-
-function getNextLevelXp(xp) {
-  const cur = getLevelData(xp);
-  if (cur.level === 20) return null;
-  return LEVEL_TABLE[cur.level].min;
+function save() {
+  localStorage.setItem(STORAGE_KEYS.xp,            state.xp);
+  localStorage.setItem(STORAGE_KEYS.streak,        state.streak);
+  localStorage.setItem(STORAGE_KEYS.perfectStreak, state.perfectStreak);
+}
+function loadProfile() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.profile) || 'null'); }
+  catch { return null; }
+}
+function saveProfile(p) {
+  localStorage.setItem(STORAGE_KEYS.profile, JSON.stringify(p));
+}
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.history) || '[]'); }
+  catch { return []; }
+}
+function saveHistory(h) {
+  localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(h));
+}
+function pushSession(entry) {
+  const h = loadHistory();
+  h.push(entry);
+  saveHistory(h.slice(-200));
 }
 
-let state = {
-  xp:            parseInt(localStorage.getItem('fq_xp')            || '0'),
-  streak:        parseInt(localStorage.getItem('fq_streak')        || '0'),
-  perfectStreak: parseInt(localStorage.getItem('fq_perfectStreak') || '0'),
+// ── Estado de sessão ──────────────────────────────────────────
+const persisted = loadState();
+const state = {
+  ...persisted,
+  screen:        'homeScreen',
   currentArea:   null,
   currentModule: null,
   questions:     [],
@@ -55,447 +59,335 @@ let state = {
   wrongAnswers:  [],
 };
 
-// ──────────────────────────────────────────────────
-// PERFIL
-// ──────────────────────────────────────────────────
-function loadProfile() {
-  try { return JSON.parse(localStorage.getItem('fq_profile') || 'null'); }
-  catch { return null; }
-}
-function saveProfile(profile) {
-  localStorage.setItem('fq_profile', JSON.stringify(profile));
-}
-
-function renderProfileCard() {
-  const profile  = loadProfile();
-  const nameEl   = document.getElementById('profileName');
-  const subEl    = document.getElementById('profileSub');
-  const avatarEl = document.getElementById('profileAvatar');
-  if (!nameEl) return;
-
-  if (profile && profile.nome) {
-    nameEl.textContent   = profile.nome;
-    avatarEl.textContent = profile.avatar || '🧑‍⚕️';
-    const parts = [profile.curso, profile.periodo].filter(Boolean);
-    subEl.textContent    = parts.length ? parts.join(' • ') : (profile.instituicao || '—');
-  } else {
-    nameEl.textContent   = 'Estudante';
-    avatarEl.textContent = '🧑‍⚕️';
-    subEl.textContent    = '—';
-  }
+// ── Níveis ────────────────────────────────────────────────────
+const LEVELS = [
+  { level:1, name:'Calouro',       min:0    },
+  { level:2, name:'Estudante',     min:80   },
+  { level:3, name:'Dedicado',      min:200  },
+  { level:4, name:'Aplicado',      min:400  },
+  { level:5, name:'Destaque',      min:700  },
+  { level:6, name:'Especialista',  min:1100 },
+  { level:7, name:'Expert',        min:1600 },
+  { level:8, name:'Mestre',        min:2200 },
+  { level:9, name:'Referência',    min:3000 },
+  { level:10,name:'FisioMestre',   min:4000 },
+];
+function getLevelData(xp) {
+  let cur = LEVELS[0];
+  for (const l of LEVELS) { if (xp >= l.min) cur = l; }
+  const idx  = LEVELS.indexOf(cur);
+  const next = LEVELS[idx + 1];
+  const pct  = next
+    ? Math.min(100, Math.round(((xp - cur.min) / (next.min - cur.min)) * 100))
+    : 100;
+  const rem  = next ? next.min - xp : 0;
+  return { ...cur, next, pct, rem };
 }
 
-function openOnboarding(prefill) {
-  const overlay = document.getElementById('onboardingOverlay');
-  overlay.style.display = 'flex';
-
-  const p = prefill || loadProfile() || {};
-  document.getElementById('inputNome').value         = p.nome        || '';
-  document.getElementById('selectInstituicao').value = p.instituicao || '';
-  document.getElementById('selectCurso').value       = p.curso       || '';
-  document.getElementById('selectPeriodo').value     = p.periodo     || '';
-
-  document.querySelectorAll('.avatar-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.avatar === (p.avatar || '🧑‍⚕️'));
-  });
+// ── Normalize question ────────────────────────────────────────
+function normalize(q) {
+  return {
+    question: q.question || q.q || '',
+    options:  q.options  || q.o || [],
+    answer:   typeof q.answer !== 'undefined' ? q.answer
+              : typeof q.correct !== 'undefined' ? q.correct : 0,
+    explain:  q.explain  || q.explanation || '',
+  };
 }
 
-function closeOnboarding() {
-  document.getElementById('onboardingOverlay').style.display = 'none';
-}
-
-function initOnboarding() {
-  const overlay    = document.getElementById('onboardingOverlay');
-  const saveBtn    = document.getElementById('onboardingSaveBtn');
-  const editBtn    = document.getElementById('profileEditBtn');
-  const avatarGrid = document.getElementById('avatarGrid');
-
-  avatarGrid.addEventListener('click', (e) => {
-    const btn = e.target.closest('.avatar-btn');
-    if (!btn) return;
-    document.querySelectorAll('.avatar-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  });
-
-  saveBtn.addEventListener('click', () => {
-    const nome = document.getElementById('inputNome').value.trim();
-    if (!nome) {
-      document.getElementById('inputNome').focus();
-      document.getElementById('inputNome').style.borderColor = 'var(--color-error)';
-      setTimeout(() => document.getElementById('inputNome').style.borderColor = '', 1500);
-      return;
-    }
-    const avatarAtivo = document.querySelector('.avatar-btn.active');
-    const profile = {
-      nome,
-      avatar:      avatarAtivo ? avatarAtivo.dataset.avatar : '🧑‍⚕️',
-      instituicao: document.getElementById('selectInstituicao').value,
-      curso:       document.getElementById('selectCurso').value,
-      periodo:     document.getElementById('selectPeriodo').value,
-    };
-    saveProfile(profile);
-    renderProfileCard();
-    closeOnboarding();
-  });
-
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay && loadProfile()) closeOnboarding();
-  });
-
-  editBtn.addEventListener('click', () => openOnboarding());
-
-  if (!loadProfile()) openOnboarding();
-  renderProfileCard();
-}
-
-// ──────────────────────────────────────────────────
-// HISTÓRICO
-// ──────────────────────────────────────────────────
-function loadHistory() {
-  try { return JSON.parse(localStorage.getItem('fq_history') || '[]'); }
-  catch { return []; }
-}
-function saveHistory(history) {
-  localStorage.setItem('fq_history', JSON.stringify(history));
-}
-function pushSession(entry) {
-  const h = loadHistory();
-  h.push(entry);
-  if (h.length > 50) h.splice(0, h.length - 50);
-  saveHistory(h);
-}
-
-function save() {
-  localStorage.setItem('fq_xp',            state.xp);
-  localStorage.setItem('fq_streak',        state.streak);
-  localStorage.setItem('fq_perfectStreak', state.perfectStreak);
-}
-
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(b =>
-    b.classList.toggle('active', b.dataset.target === id)
-  );
-  window.scrollTo(0, 0);
-  if (id === 'statsScreen') renderStats();
-}
-
-// ── Toast genérico ────────────────────────────────────────────
-let _toastTimer = null;
-function showToast(msg) {
-  let toast = document.getElementById('appToast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'appToast';
-    document.querySelector('.app').appendChild(toast);
-  }
-  toast.textContent = msg;
-  toast.classList.remove('show');
-  void toast.offsetWidth;
-  toast.classList.add('show');
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
-}
-
-// ── HUD ───────────────────────────────────────────────
+// ── HUD ───────────────────────────────────────────────────────
 function updateHUD() {
   const lvl = getLevelData(state.xp);
-  document.getElementById('statXp').textContent     = state.xp + ' XP';
+  const fmt = n => n >= 1000 ? (n/1000).toFixed(1)+'k' : String(n);
+  document.getElementById('statXp').textContent     = fmt(state.xp) + ' XP';
   document.getElementById('statStreak').textContent = state.streak;
   document.getElementById('statRank').textContent   = 'Nível ' + lvl.level;
 
-  const nextXp = getNextLevelXp(state.xp);
-  const bar    = document.getElementById('xpProgressBar');
-  const barPct = document.getElementById('xpProgressPct');
-  const barNext= document.getElementById('xpProgressNext');
-  if (!bar) return;
-  if (nextXp === null) {
-    bar.style.width  = '100%';
-    if (barPct)  barPct.textContent  = '🏆 Nível máximo!';
-    if (barNext) barNext.textContent = '';
-  } else {
-    const prev = getLevelData(state.xp).min;
-    const span = nextXp - prev;
-    const done = state.xp - prev;
-    const pct  = Math.min(100, Math.round((done / span) * 100));
-    bar.style.width  = pct + '%';
-    if (barPct)  barPct.textContent  = pct + '% para Nível ' + (lvl.level + 1);
-    if (barNext) barNext.textContent = (nextXp - state.xp) + ' XP restantes';
+  const bar = document.getElementById('xpProgressBar');
+  if (bar) bar.style.width = lvl.pct + '%';
+  const pctEl = document.getElementById('xpProgressPct');
+  const remEl = document.getElementById('xpProgressNext');
+  if (pctEl) pctEl.textContent = lvl.pct + '% para Nível ' + (lvl.next ? lvl.next.level : lvl.level);
+  if (remEl) remEl.textContent = lvl.rem > 0 ? lvl.rem + ' XP restantes' : 'Nível máximo!';
+
+  const profile = loadProfile();
+  if (profile) {
+    const nameEl   = document.getElementById('profileName');
+    const subEl    = document.getElementById('profileSub');
+    const avatarEl = document.getElementById('profileAvatar');
+    if (nameEl)   nameEl.textContent   = profile.nome || 'Estudante';
+    if (avatarEl) avatarEl.textContent = profile.avatar || '👦';
+    if (subEl) {
+      const parts = [profile.curso, profile.periodo].filter(Boolean);
+      subEl.textContent = parts.length ? parts.join(' · ') : '—';
+    }
   }
 }
 
-// ── ABAS DE ÁREAS (dinâmico) ────────────────────────────
+// ── Screens ───────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id)?.classList.add('active');
+  state.screen = id;
+
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.target === id);
+  });
+
+  if (id === 'statsScreen') renderStats();
+}
+
+// ── Área / Módulos ─────────────────────────────────────────────
 function buildAreaTabs() {
-  const tabsEl  = document.getElementById('areaTabs');
-  const countEl = document.getElementById('areaCount');
-  if (!tabsEl || typeof AREAS === 'undefined') return;
+  const tabs      = document.getElementById('areaTabs');
+  const list      = document.getElementById('moduleList');
+  const areaCount = document.getElementById('areaCount');
+  const areaKeys  = Object.keys(AREAS);
 
-  const keys = Object.keys(AREAS);
-  if (countEl) countEl.textContent = keys.length + ' área' + (keys.length !== 1 ? 's' : '') + ' disponível' + (keys.length !== 1 ? 'eis' : '');
+  let totalModules = 0;
+  areaKeys.forEach(k => { totalModules += (AREAS[k].modules || []).length; });
+  if (areaCount) areaCount.textContent = totalModules + ' módulos';
 
-  tabsEl.innerHTML = '';
-  let firstKey = null;
+  let activeArea = areaKeys[0];
 
-  keys.forEach((key, i) => {
-    const area = AREAS[key];
-    const btn  = document.createElement('button');
-    btn.className    = 'area-tab' + (i === 0 ? ' active' : '');
-    btn.dataset.area = key;
-    btn.textContent  = (area.icon || '') + ' ' + area.label;
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.area-tab').forEach(t => t.classList.remove('active'));
-      btn.classList.add('active');
-      buildModuleList(key);
+  function renderTabs() {
+    tabs.innerHTML = '';
+    areaKeys.forEach(key => {
+      const area = AREAS[key];
+      const btn  = document.createElement('button');
+      btn.className  = 'area-tab' + (key === activeArea ? ' active' : '');
+      btn.innerHTML  = `${area.icon || ''} ${area.label}`;
+      btn.addEventListener('click', () => { activeArea = key; renderTabs(); renderModules(); });
+      tabs.appendChild(btn);
     });
-    tabsEl.appendChild(btn);
-    if (i === 0) firstKey = key;
-  });
-
-  if (firstKey) buildModuleList(firstKey);
-}
-
-function buildModuleList(areaKey) {
-  const list = document.getElementById('moduleList');
-  list.innerHTML = '';
-  const area = (typeof AREAS !== 'undefined') && AREAS[areaKey];
-  if (!area || !area.modules || area.modules.length === 0) {
-    list.innerHTML = '<p style="color:var(--color-text-muted);padding:var(--space-4)">Módulos não encontrados.</p>';
-    return;
   }
-  area.modules.forEach(mod => {
-    const card = document.createElement('button');
-    card.className = 'module-card';
-    card.innerHTML = `<span class="module-label">${mod.icon || ''} ${mod.title}</span>`;
-    card.addEventListener('click', () => startLesson(areaKey, mod.id));
-    list.appendChild(card);
-  });
+
+  function renderModules() {
+    list.innerHTML = '';
+    const mods = AREAS[activeArea]?.modules || [];
+    mods.forEach(mod => {
+      const card = document.createElement('div');
+      card.className = 'module-card';
+      card.style.setProperty('--mod-color', mod.color || '#e8f6ef');
+      card.innerHTML = `
+        <div class="module-icon">${mod.icon || '📚'}</div>
+        <div class="module-info">
+          <strong>${mod.title}</strong>
+          <span>${mod.subtitle || ''}</span>
+        </div>
+        <div class="module-arrow">›</div>`;
+      card.addEventListener('click', () => startLesson(activeArea, mod.id));
+      list.appendChild(card);
+    });
+  }
+
+  renderTabs();
+  renderModules();
 }
 
+// ── Iniciar lição ─────────────────────────────────────────────
 function startLesson(areaKey, moduleId) {
   const area = AREAS[areaKey];
-  if (!area) return;
-  const mod = area.modules.find(m => m.id === moduleId);
-  if (!mod || !mod.questions || mod.questions.length === 0) return;
+  const mod  = area?.modules?.find(m => m.id === moduleId);
+  if (!mod) return;
 
-  const normalize = (q) => ({
-    question:    q.question || q.q,
-    options:     q.options,
-    correct:     q.correct  !== undefined ? q.correct : q.answer,
-    explanation: q.explanation || q.explain || '',
-  });
+  const pool = (mod.questions || []).map(normalize);
+  const shuffled = pool.sort(() => Math.random() - 0.5).slice(0, QUESTIONS_PER_SESSION);
 
   state.currentArea   = areaKey;
   state.currentModule = moduleId;
-  state.questions     = shuffle(mod.questions.map(normalize)).slice(0, QUESTIONS_PER_SESSION);
+  state.questions     = shuffled;
   state.qIndex        = 0;
   state.correct       = 0;
   state.answered      = false;
   state.wrongAnswers  = [];
 
-  document.getElementById('lessonTag').textContent   = area.icon + ' ' + area.label;
+  document.getElementById('lessonTag').textContent   = area.label;
   document.getElementById('lessonTitle').textContent = mod.title;
 
   showScreen('lessonScreen');
   renderQuestion();
 }
 
+// ── Verificar se lição está em andamento ──────────────────────
+function isLessonInProgress() {
+  return state.screen === 'lessonScreen' &&
+         state.questions.length > 0 &&
+         state.qIndex > 0 &&
+         state.qIndex < state.questions.length;
+}
+
+// ── Modal de saída ────────────────────────────────────────────
+let _exitCallback = null;
+
+function showExitModal(onConfirm) {
+  _exitCallback = onConfirm;
+  document.getElementById('exitModal')?.classList.add('visible');
+}
+
+function hideExitModal() {
+  document.getElementById('exitModal')?.classList.remove('visible');
+  _exitCallback = null;
+}
+
+function initExitModal() {
+  document.getElementById('exitCancelBtn')?.addEventListener('click', hideExitModal);
+  document.getElementById('exitModal')?.addEventListener('click', e => {
+    if (e.target === e.currentTarget) hideExitModal();
+  });
+  document.getElementById('exitConfirmBtn')?.addEventListener('click', () => {
+    const cb = _exitCallback;
+    hideExitModal();
+    if (cb) cb();
+  });
+}
+
+// ── Render Question ───────────────────────────────────────────
 function renderQuestion() {
   const q     = state.questions[state.qIndex];
+  const norm  = q; // já normalizado
   const total = state.questions.length;
-  const pct   = Math.round((state.qIndex / total) * 100);
+
+  state.answered = false;
 
   document.getElementById('questionCounter').textContent = `${state.qIndex + 1}/${total}`;
-  document.getElementById('progressText').textContent    = pct + '%';
-  document.getElementById('progressFill').style.width   = pct + '%';
-  document.getElementById('questionText').textContent   = q.question;
+  document.getElementById('questionText').textContent    = norm.question;
+
+  const pct = Math.round((state.qIndex / total) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent  = pct + '%';
 
   const answersEl = document.getElementById('answers');
   answersEl.innerHTML = '';
 
-  shuffle(q.options.map((text, i) => ({ text, index: i }))).forEach(({ text, index }) => {
+  norm.options.forEach((opt, i) => {
     const btn = document.createElement('button');
-    btn.className     = 'answer';
-    btn.textContent   = text;
-    btn.dataset.index = index;
-    btn.addEventListener('click', () => selectAnswer(btn, index, q.correct));
+    btn.className   = 'answer-btn';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => handleAnswer(i));
     answersEl.appendChild(btn);
   });
-
-  document.getElementById('feedbackPlaceholder').style.display = 'block';
-  const card = document.getElementById('feedbackCard');
-  card.classList.remove('visible', 'is-correct', 'is-wrong');
 
   const nextBtn = document.getElementById('nextBtn');
   nextBtn.disabled    = true;
   nextBtn.textContent = 'Responda primeiro';
-  state.answered = false;
+
+  document.getElementById('feedbackCard').classList.remove('visible', 'correct', 'wrong');
+  document.getElementById('feedbackPlaceholder').style.display = 'block';
+  document.getElementById('feedbackExplainWrap').style.display = 'none';
 }
 
-function showFeedbackCard(isCorrect, correctText, explanation) {
+// ── Handle Answer ─────────────────────────────────────────────
+function handleAnswer(chosen) {
+  if (state.answered) return;
+  state.answered = true;
+
+  const q      = state.questions[state.qIndex];
+  const isOk   = chosen === q.answer;
+
+  if (isOk) {
+    state.correct++;
+    state.streak++;
+  } else {
+    state.streak = 0;
+    state.wrongAnswers.push({
+      question: q.question,
+      chosen:   q.options[chosen],
+      correct:  q.options[q.answer],
+      explain:  q.explain || '',
+    });
+  }
+  save();
+  updateHUD();
+
+  // Estilizar botões
+  document.querySelectorAll('.answer-btn').forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.answer) btn.classList.add('correct');
+    else if (i === chosen) btn.classList.add('wrong');
+  });
+
+  // Feedback
   document.getElementById('feedbackPlaceholder').style.display = 'none';
 
-  const card        = document.getElementById('feedbackCard');
-  const icon        = document.getElementById('feedbackIcon');
-  const status      = document.getElementById('feedbackStatus');
-  const correctTxt  = document.getElementById('feedbackCorrectText');
+  const card  = document.getElementById('feedbackCard');
+  card.classList.add('visible', isOk ? 'correct' : 'wrong');
+
+  document.getElementById('feedbackIcon').textContent   = isOk ? '✅' : '❌';
+  document.getElementById('feedbackStatus').textContent = isOk ? 'Correto!' : 'Incorreto';
+  document.getElementById('feedbackCorrectText').textContent = q.options[q.answer];
+
   const explainWrap = document.getElementById('feedbackExplainWrap');
-  const explainTxt  = document.getElementById('feedbackExplainText');
-
-  card.classList.remove('is-correct', 'is-wrong', 'visible');
-  void card.offsetWidth;
-
-  if (isCorrect) {
-    icon.textContent   = '✅';
-    status.textContent = 'Resposta correta!';
-    card.classList.add('is-correct');
-  } else {
-    icon.textContent   = '❌';
-    status.textContent = 'Resposta incorreta';
-    card.classList.add('is-wrong');
-  }
-  correctTxt.textContent = correctText;
-
-  if (explanation) {
-    explainTxt.textContent    = explanation;
+  if (q.explain) {
     explainWrap.style.display = 'flex';
+    document.getElementById('feedbackExplainText').textContent = q.explain;
   } else {
     explainWrap.style.display = 'none';
   }
 
-  card.classList.add('visible');
-}
-
-function selectAnswer(btn, chosen, correct) {
-  if (state.answered) return;
-  state.answered = true;
-
-  const allBtns   = document.querySelectorAll('.answer');
-  const isCorrect = chosen === correct;
-  const nextBtn   = document.getElementById('nextBtn');
-  const q         = state.questions[state.qIndex];
-
-  allBtns.forEach(b => {
-    b.disabled = true;
-    if (parseInt(b.dataset.index) === correct) b.classList.add('correct');
-  });
-
-  if (isCorrect) {
-    btn.classList.add('correct');
-    state.correct++;
-    state.streak++;
-  } else {
-    btn.classList.add('wrong');
-    state.streak = 0;
-    state.wrongAnswers.push({
-      question: q.question, options: q.options,
-      chosen, correct, explanation: q.explanation || '',
-    });
-  }
-
-  showFeedbackCard(isCorrect, q.options[correct], q.explanation || '');
-  save();
-  updateHUD();
-
-  const isLast = state.qIndex === state.questions.length - 1;
+  const nextBtn = document.getElementById('nextBtn');
   nextBtn.disabled    = false;
-  nextBtn.textContent = isLast ? 'Ver resultado →' : 'Próxima →';
+  nextBtn.textContent = state.qIndex + 1 < state.questions.length ? 'Próxima →' : 'Ver resultado';
 }
 
-// ── Mascote ──────────────────────────────────────────────
-function getMascoteFala(pct, perfectStreak) {
-  if (pct === 100 && perfectStreak >= 3)
-    return `🔥 ${perfectStreak}× PERFEITO consecutivo! Você é imparável!`;
-  if (pct === 100)
-    return '🏆 PERFEITO! Você mandou muito bem, futuro especialista!';
-  if (pct >= 70)
-    return '🎉 Ótimo trabalho! Você está no caminho certo. Continue assim!';
-  if (pct >= 50)
-    return '💪 Quase lá! Revise o conteúdo e tente de novo — você consegue!';
-  return '😄 Na próxima você consegue! Não desista, cada erro é um aprendizado!';
-}
-
-function animateMascote() {
-  const img = document.getElementById('mascoteImg');
-  if (!img) return;
-  img.classList.remove('bounce');
-  void img.offsetWidth;
-  img.classList.add('bounce');
-}
-
-// ── Confete ─────────────────────────────────────────────────
+// ── Confetti ──────────────────────────────────────────────────
 function launchConfetti() {
   const canvas = document.getElementById('confettiCanvas');
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
-  const colors = ['#0d8f67','#f2c94c','#4edba8','#ff6b6b','#74b9ff','#a29bfe'];
+  const ctx    = canvas.getContext('2d');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  canvas.style.display = 'block';
+
   const pieces = Array.from({ length: 120 }, () => ({
-    x: Math.random() * canvas.width, y: Math.random() * -canvas.height,
-    w: 8 + Math.random() * 8, h: 4 + Math.random() * 4,
-    color: colors[Math.floor(Math.random() * colors.length)],
-    speed: 3 + Math.random() * 4, angle: Math.random() * Math.PI * 2,
-    spin: (Math.random() - .5) * .2, drift: (Math.random() - .5) * 2,
+    x: Math.random() * canvas.width,
+    y: -10 - Math.random() * 100,
+    w: 8 + Math.random() * 8,
+    h: 5 + Math.random() * 5,
+    r: Math.random() * Math.PI * 2,
+    dr: (Math.random() - 0.5) * 0.2,
+    vy: 2 + Math.random() * 3,
+    vx: (Math.random() - 0.5) * 2,
+    color: ['#0d8f67','#f5c842','#e84393','#4fa8e8','#ff6b35'][Math.floor(Math.random()*5)],
   }));
-  let frame = 0; const maxFrames = 180;
+
+  let frame;
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     pieces.forEach(p => {
-      p.y += p.speed; p.x += p.drift; p.angle += p.spin;
       ctx.save();
-      ctx.translate(p.x + p.w/2, p.y + p.h/2); ctx.rotate(p.angle);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.r);
       ctx.fillStyle = p.color;
-      ctx.globalAlpha = Math.max(0, 1 - frame/maxFrames);
       ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
       ctx.restore();
+      p.y += p.vy; p.x += p.vx; p.r += p.dr;
     });
-    frame++;
-    if (frame < maxFrames) requestAnimationFrame(draw);
-    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (pieces.some(p => p.y < canvas.height)) frame = requestAnimationFrame(draw);
+    else { canvas.style.display = 'none'; cancelAnimationFrame(frame); }
   }
   draw();
 }
 
-// ── Revisão de erros ────────────────────────────────────────────
-function buildReviewPanel(wrongAnswers) {
-  const section = document.getElementById('reviewSection');
-  const list    = document.getElementById('reviewList');
-  const toggle  = document.getElementById('reviewToggle');
-  const count   = document.getElementById('reviewCount');
-  if (!wrongAnswers || wrongAnswers.length === 0) { section.style.display = 'none'; return; }
-  count.textContent = `(${wrongAnswers.length})`;
-  list.innerHTML = '';
-  wrongAnswers.forEach(w => {
-    const item = document.createElement('div');
-    item.className = 'review-item';
-    item.innerHTML = `
-      <p class="ri-q">❓ ${w.question}</p>
-      <p class="ri-wrong">✗ Sua resposta: ${w.options[w.chosen]}</p>
-      <p class="ri-correct">✓ Correta: ${w.options[w.correct]}</p>
-      ${w.explanation ? `<p class="ri-explain">💡 ${w.explanation}</p>` : ''}
-    `;
-    list.appendChild(item);
-  });
-  section.style.display = 'block';
-  const newToggle = toggle.cloneNode(true);
-  toggle.parentNode.replaceChild(newToggle, toggle);
-  newToggle.addEventListener('click', () => {
-    const open = list.classList.toggle('open');
-    newToggle.classList.toggle('open', open);
-  });
+// ── Mascote fala ──────────────────────────────────────────────
+function getMascoteFala(pct, streak) {
+  if (pct === 100) return streak >= 2
+    ? `🔥 ${streak}× perfeito! Você é incrível!`
+    : '🏆 Perfeito! Você dominou o conteúdo!';
+  if (pct >= 70) return '😊 Ótimo trabalho! Continue assim!';
+  if (pct >= 50) return '👍 Bom esforço! Revise e melhore!';
+  return '💪 Não desista! Revise o conteúdo e tente de novo!';
 }
 
-// ── Resultado ───────────────────────────────────────────────────
+// ── Mascote animação ──────────────────────────────────────────
+function animateMascote() {
+  const img = document.getElementById('mascoteImg');
+  if (!img) return;
+  img.classList.remove('mascote-bounce');
+  void img.offsetWidth;
+  img.classList.add('mascote-bounce');
+}
+
+// ── Resultado ───────────────────────────────────────────────
 function showResult() {
   const total   = state.questions.length;
   const correct = state.correct;
@@ -569,6 +461,45 @@ function showResult() {
   if (pct === 100) launchConfetti();
 }
 
+// ── Compartilhar Resultado ───────────────────────────────────────
+async function shareResult() {
+  const btn = document.getElementById('shareResultBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Gerando...'; }
+
+  const card = document.querySelector('#resultScreen .result-card');
+  try {
+    const canvas = await html2canvas(card, {
+      backgroundColor: getComputedStyle(document.documentElement)
+        .getPropertyValue('--color-surface').trim() || '#ffffff',
+      scale: 2,
+      useCORS: true,
+      logging: false,
+    });
+
+    const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+    const area = AREAS[state.currentArea];
+    const mod  = area?.modules?.find(m => m.id === state.currentModule);
+    const pct  = Math.round((state.correct / state.questions.length) * 100);
+    const shareTitle = 'FisioQuest — ' + (mod?.title || 'Módulo') + ': ' + pct + '% de acerto';
+
+    if (navigator.canShare && navigator.canShare({ files: [new File([blob], 'resultado.png', { type: 'image/png' })] })) {
+      await navigator.share({ title: shareTitle, files: [new File([blob], 'resultado.png', { type: 'image/png' })] });
+    } else if (navigator.share) {
+      await navigator.share({ title: shareTitle, text: shareTitle + '\nJogue no FisioQuest!' });
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'fisioquest-resultado-' + pct + 'pct.png';
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
+    }
+  } catch (e) {
+    console.warn('Share falhou:', e);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '📤 Compartilhar resultado'; }
+  }
+}
+
 // ── Toast de Level Up ────────────────────────────────────────────
 function showLevelUpToast(lvl) {
   let toast = document.getElementById('levelUpToast');
@@ -578,169 +509,193 @@ function showLevelUpToast(lvl) {
     document.querySelector('.app').appendChild(toast);
   }
   toast.innerHTML = `⬆️ Subiu para <strong>Nível ${lvl.level}</strong> — ${lvl.name}!`;
-  toast.classList.remove('show');
-  void toast.offsetWidth;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 4000);
+  toast.className = 'level-up-toast show';
+  setTimeout(() => toast.classList.remove('show'), 3500);
 }
 
-// ──────────────────────────────────────────────────
-// MODAL DE CONFIRMAÇÃO DE SAÍDA
-// ──────────────────────────────────────────────────
-function isLessonInProgress() {
-  // Considera "em andamento" se já respondeu ao menos 1 questão
-  // OU se está no meio de uma (qIndex > 0)
-  return state.questions.length > 0 && (state.qIndex > 0 || state.answered);
-}
+// ── Painel de revisão ─────────────────────────────────────────
+function buildReviewPanel(wrongs) {
+  const sec    = document.getElementById('reviewSection');
+  const list   = document.getElementById('reviewList');
+  const toggle = document.getElementById('reviewToggle');
+  const count  = document.getElementById('reviewCount');
 
-function showExitModal(onConfirm) {
-  let modal = document.getElementById('exitModal');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.id = 'exitModal';
-    modal.className = 'exit-modal-overlay';
-    modal.innerHTML = `
-      <div class="exit-modal-card">
-        <div class="exit-modal-icon">⚠️</div>
-        <h3>Sair da lição?</h3>
-        <p>Você está na questão <strong id="exitModalProgress"></strong>.<br>
-           Se sair agora, o progresso desta sessão <strong>não será salvo</strong> e você perderá a sequência atual.</p>
-        <div class="exit-modal-actions">
-          <button class="btn btn-ghost" id="exitModalCancel">Continuar lição</button>
-          <button class="btn btn-exit" id="exitModalConfirm">Sair mesmo assim</button>
-        </div>
-      </div>`;
-    document.querySelector('.app').appendChild(modal);
-  }
+  if (!wrongs.length) { if (sec) sec.style.display = 'none'; return; }
+  if (sec)   sec.style.display   = 'block';
+  if (count) count.textContent   = `(${wrongs.length})`;
 
-  const answered = state.qIndex + (state.answered ? 1 : 0);
-  const total    = state.questions.length;
-  document.getElementById('exitModalProgress').textContent =
-    `${answered}/${total} (${Math.round((answered/total)*100)}%)`;
+  list.innerHTML = '';
+  wrongs.forEach(w => {
+    const item = document.createElement('div');
+    item.className = 'review-item';
+    item.innerHTML = `
+      <p class="review-question">${w.question}</p>
+      <p class="review-wrong">❌ Sua resposta: <em>${w.chosen}</em></p>
+      <p class="review-correct">✅ Correta: <em>${w.correct}</em></p>
+      ${w.explain ? `<p class="review-explain">💡 ${w.explain}</p>` : ''}`;
+    list.appendChild(item);
+  });
 
-  modal.classList.add('visible');
-
-  const cancelBtn  = document.getElementById('exitModalCancel');
-  const confirmBtn = document.getElementById('exitModalConfirm');
-
-  // Fecha ao clicar no backdrop
-  const backdropHandler = (e) => {
-    if (e.target === modal) closeExitModal();
+  let open = false;
+  if (toggle) toggle.onclick = () => {
+    open = !open;
+    list.classList.toggle('visible', open);
+    const arrow = toggle.querySelector('.review-arrow');
+    if (arrow) arrow.textContent = open ? '▲' : '▼';
   };
-  modal.addEventListener('click', backdropHandler);
-
-  const cleanup = () => {
-    cancelBtn.removeEventListener('click', cancelHandler);
-    confirmBtn.removeEventListener('click', confirmHandler);
-    modal.removeEventListener('click', backdropHandler);
-  };
-
-  const cancelHandler = () => { cleanup(); closeExitModal(); };
-  const confirmHandler = () => {
-    cleanup();
-    closeExitModal();
-    // Zera o streak ao sair — penalidade por abandono
-    state.streak = 0;
-    save();
-    updateHUD();
-    onConfirm();
-  };
-
-  cancelBtn.addEventListener('click', cancelHandler);
-  confirmBtn.addEventListener('click', confirmHandler);
 }
 
-function closeExitModal() {
-  const modal = document.getElementById('exitModal');
-  if (modal) modal.classList.remove('visible');
-}
-
-// ──────────────────────────────────────────────────
-// TELA DE ESTATÍSTICAS
-// ──────────────────────────────────────────────────
+// ── Stats ─────────────────────────────────────────────────────
 function renderStats() {
-  const history       = loadHistory();
-  const totalSessions = history.length;
-  const totalPct      = history.reduce((s, h) => s + h.pct, 0);
-  const avgPct        = totalSessions ? Math.round(totalPct / totalSessions) : null;
-  const bestPct       = totalSessions ? Math.max(...history.map(h => h.pct)) : null;
+  const history = loadHistory();
 
   document.getElementById('kpiXp').textContent       = state.xp;
-  document.getElementById('kpiSessions').textContent = totalSessions;
-  document.getElementById('kpiAvg').textContent      = avgPct !== null ? avgPct + '%' : '-';
-  document.getElementById('kpiBest').textContent     = bestPct !== null ? bestPct + '%' : '-';
+  document.getElementById('kpiSessions').textContent = history.length;
 
-  renderBarChart(history.slice(-10));
+  if (history.length) {
+    const avg  = Math.round(history.reduce((s, h) => s + h.pct, 0) / history.length);
+    const best = Math.max(...history.map(h => h.pct));
+    document.getElementById('kpiAvg').textContent  = avg + '%';
+    document.getElementById('kpiBest').textContent = best + '%';
+  } else {
+    document.getElementById('kpiAvg').textContent  = '—';
+    document.getElementById('kpiBest').textContent = '—';
+  }
+
+  renderBarChart(history);
   renderModuleStats(history);
-  renderSessionLog(history.slice().reverse().slice(0, 20));
+  renderSessionLog(history);
 }
 
-function renderBarChart(sessions) {
+function renderBarChart(history) {
   const el = document.getElementById('barChart');
-  if (!sessions.length) {
+  if (!el) return;
+  const last = history.slice(-10);
+  if (!last.length) {
     el.innerHTML = '<p class="empty-chart">Complete sessões para ver sua evolução aqui.</p>';
     return;
   }
-  const maxH = 80;
-  const bars = sessions.map(s => {
-    const h = Math.max(4, Math.round((s.pct / 100) * maxH));
-    const d = new Date(s.ts);
-    const label = d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
-    return `
-      <div class="bar-wrap">
-        <span class="bar-label">${s.pct}%</span>
-        <div class="bar${s.pct === 100 ? ' perfect' : ''}" style="height:${h}px" title="${s.moduleTitle} — ${s.pct}%"></div>
-        <span class="bar-date">${label}</span>
-      </div>`;
+  el.innerHTML = last.map(h => {
+    const h_pct = h.pct;
+    const color = h_pct >= 70 ? 'var(--color-primary)' : h_pct >= 50 ? 'var(--color-warning)' : 'var(--color-error)';
+    return `<div class="bar-col">
+      <div class="bar-fill" style="height:${h_pct}%;background:${color}" title="${h_pct}%"></div>
+      <span class="bar-label">${h_pct}%</span>
+    </div>`;
   }).join('');
-  el.innerHTML = `<div class="bar-chart-inner">${bars}</div>`;
 }
 
 function renderModuleStats(history) {
   const el = document.getElementById('moduleStats');
+  if (!el) return;
   if (!history.length) { el.innerHTML = '<p class="empty-chart">Nenhuma sessão registrada ainda.</p>'; return; }
+
   const map = {};
-  history.forEach(s => {
-    if (!map[s.moduleId]) map[s.moduleId] = { title: s.moduleTitle, pcts: [] };
-    map[s.moduleId].pcts.push(s.pct);
+  history.forEach(h => {
+    if (!map[h.moduleTitle]) map[h.moduleTitle] = { total: 0, count: 0 };
+    map[h.moduleTitle].total += h.pct;
+    map[h.moduleTitle].count++;
   });
-  el.innerHTML = Object.values(map).map(m => {
-    const avg   = Math.round(m.pcts.reduce((a,b) => a+b, 0) / m.pcts.length);
-    const count = m.pcts.length;
-    return `
-      <div class="module-stat-row">
-        <div class="module-stat-top">
-          <span class="module-stat-name">${m.title}</span>
-          <span class="module-stat-pct">${avg}%</span>
-        </div>
-        <div class="module-bar-bg">
-          <div class="module-bar-fill" style="width:${avg}%"></div>
-        </div>
-        <span class="module-stat-sub">${count} sessão${count > 1 ? 'ões' : ''} • média ${avg}%</span>
-      </div>`;
+
+  el.innerHTML = Object.entries(map).map(([title, d]) => {
+    const avg   = Math.round(d.total / d.count);
+    const color = avg >= 70 ? 'var(--color-primary)' : avg >= 50 ? 'var(--color-warning)' : 'var(--color-error)';
+    return `<div class="module-stat-row">
+      <span class="msr-title">${title}</span>
+      <div class="msr-bar-track"><div class="msr-bar-fill" style="width:${avg}%;background:${color}"></div></div>
+      <span class="msr-pct">${avg}%</span>
+    </div>`;
   }).join('');
 }
 
-function renderSessionLog(sessions) {
+function renderSessionLog(history) {
   const el = document.getElementById('sessionLog');
-  if (!sessions.length) { el.innerHTML = '<p class="empty-chart">Nenhuma atividade ainda.</p>'; return; }
-  const fmt = ts => new Date(ts).toLocaleString('pt-BR', {
-    day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'
-  });
-  el.innerHTML = sessions.map(s => `
-    <div class="session-entry">
-      <div class="session-info">
-        <span class="session-module">${s.areaLabel} • ${s.moduleTitle}</span>
-        <span class="session-date">${fmt(s.ts)}</span>
+  if (!el) return;
+  if (!history.length) { el.innerHTML = '<p class="empty-chart">Nenhuma atividade ainda.</p>'; return; }
+  const sorted = [...history].reverse().slice(0, 20);
+  el.innerHTML = sorted.map(h => {
+    const d    = new Date(h.ts);
+    const date = d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
+    const time = d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+    const color = h.pct >= 70 ? 'var(--color-primary)' : h.pct >= 50 ? 'var(--color-warning)' : 'var(--color-error)';
+    return `<div class="session-row">
+      <div class="sr-info">
+        <span class="sr-module">${h.moduleTitle}</span>
+        <span class="sr-date">${date} · ${time}</span>
       </div>
-      <span class="session-badge${s.pct === 100 ? ' perfect' : ''}">${s.correct}/${s.total} • ${s.pct}%</span>
-    </div>`).join('');
+      <span class="sr-pct" style="color:${color}">${h.pct}%</span>
+    </div>`;
+  }).join('');
+}
+
+// ── Onboarding ────────────────────────────────────────────────
+function initOnboarding() {
+  const overlay = document.getElementById('onboardingOverlay');
+  const profile = loadProfile();
+  if (!profile) overlay.style.display = 'flex';
+
+  // Avatar grid
+  document.querySelectorAll('.avatar-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.avatar-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  document.getElementById('onboardingSaveBtn').addEventListener('click', () => {
+    const nome        = document.getElementById('inputNome').value.trim();
+    const instituicao = document.getElementById('selectInstituicao').value;
+    const curso       = document.getElementById('selectCurso').value;
+    const periodo     = document.getElementById('selectPeriodo').value;
+    const avatar      = document.querySelector('.avatar-btn.active')?.dataset.avatar || '👦';
+    if (!nome) { alert('Por favor, informe seu nome.'); return; }
+    saveProfile({ nome, avatar, instituicao, curso, periodo });
+    overlay.style.display = 'none';
+    updateHUD();
+  });
+
+  // Botão editar perfil
+  document.getElementById('profileEditBtn')?.addEventListener('click', () => {
+    const p = loadProfile();
+    if (p) {
+      document.getElementById('inputNome').value = p.nome || '';
+      document.getElementById('selectInstituicao').value = p.instituicao || '';
+      document.getElementById('selectCurso').value = p.curso || '';
+      document.getElementById('selectPeriodo').value = p.periodo || '';
+      const activeAvatar = document.querySelector(`.avatar-btn[data-avatar="${p.avatar}"]`);
+      if (activeAvatar) {
+        document.querySelectorAll('.avatar-btn').forEach(b => b.classList.remove('active'));
+        activeAvatar.classList.add('active');
+      }
+    }
+    overlay.style.display = 'flex';
+  });
+}
+
+// ── Tema ──────────────────────────────────────────────────────
+function initTheme() {
+  const toggle  = document.getElementById('themeToggle');
+  const iconEl  = document.getElementById('themeIcon');
+  const html    = document.documentElement;
+  const saved   = localStorage.getItem('fq_theme');
+  const system  = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  let dark = saved ? saved === 'dark' : system;
+  html.setAttribute('data-theme', dark ? 'dark' : 'light');
+  if (iconEl) iconEl.textContent = dark ? '☀️' : '🌙';
+  toggle?.addEventListener('click', () => {
+    dark = !dark;
+    html.setAttribute('data-theme', dark ? 'dark' : 'light');
+    localStorage.setItem('fq_theme', dark ? 'dark' : 'light');
+    if (iconEl) iconEl.textContent = dark ? '☀️' : '🌙';
+  });
 }
 
 // ── Init ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   updateHUD();
   initOnboarding();
+  initTheme();
+  initExitModal();
   buildAreaTabs();
 
   document.getElementById('nextBtn').addEventListener('click', () => {
@@ -761,6 +716,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('restartModuleBtn').addEventListener('click',    () => startLesson(state.currentArea, state.currentModule));
   document.getElementById('goHomeFromResultBtn').addEventListener('click', () => showScreen('homeScreen'));
+  document.getElementById('shareResultBtn')?.addEventListener('click', shareResult);
 
   document.getElementById('clearStatsBtn').addEventListener('click', () => {
     if (confirm('Limpar todo o histórico de sessões?')) {
@@ -773,33 +729,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const t = btn.dataset.target;
-
-      // Botão Lição sem módulo selecionado: orientar o usuário
-      if (t === 'lessonScreen' && state.questions.length === 0) {
-        showToast('📚 Escolha um módulo primeiro');
-        showScreen('homeScreen');
-        return;
-      }
-
-      if (t !== 'lessonScreen' && document.getElementById('lessonScreen').classList.contains('active') && isLessonInProgress()) {
+      if (!t) return;
+      if (t !== 'lessonScreen' && isLessonInProgress()) {
         showExitModal(() => showScreen(t));
-        return;
+      } else {
+        showScreen(t);
       }
-      showScreen(t);
     });
-  });
-
-  const themeToggle = document.getElementById('themeToggle');
-  const themeIcon   = document.getElementById('themeIcon');
-  const html        = document.documentElement;
-  const saved       = localStorage.getItem('fq_theme') || 'light';
-  html.setAttribute('data-theme', saved);
-  themeIcon.textContent = saved === 'dark' ? '☀️' : '🌙';
-
-  themeToggle.addEventListener('click', () => {
-    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    html.setAttribute('data-theme', next);
-    themeIcon.textContent = next === 'dark' ? '☀️' : '🌙';
-    localStorage.setItem('fq_theme', next);
   });
 });
