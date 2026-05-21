@@ -136,6 +136,7 @@ function showScreen(id) {
 
   if (id === 'statsScreen') renderStats();
   if (id === 'rankingScreen') renderRanking();
+  if (id === 'achievementsScreen') renderAchievements();
 }
 
 // ── Área / Módulos ─────────────────────────────────────────────
@@ -748,6 +749,111 @@ function renderRanking() {
   `).join('');
 }
 
+function renderAchievements() {
+  const history = loadHistory();
+  const sessions = history.length;
+  const avgScore = sessions
+    ? Math.round(history.reduce((sum, item) => sum + item.pct, 0) / sessions)
+    : 0;
+
+  const achievements = [
+    {
+      icon: '🌱',
+      title: 'Primeiro passo',
+      desc: 'Conclua sua primeira sessão no FisioQuest.',
+      current: sessions,
+      target: 1
+    },
+    {
+      icon: '📚',
+      title: 'Estudante ativo',
+      desc: 'Complete 5 sessões de estudo.',
+      current: sessions,
+      target: 5
+    },
+    {
+      icon: '⚡',
+      title: 'Acumulador de XP',
+      desc: 'Alcance 500 XP total.',
+      current: state.xp,
+      target: 500
+    },
+    {
+      icon: '🔥',
+      title: 'Em sequência',
+      desc: 'Atinga uma sequência de 3 respostas corretas.',
+      current: state.streak,
+      target: 3
+    },
+    {
+      icon: '🏆',
+      title: 'Perfeição',
+      desc: 'Conclua uma sessão com 100% de acertos.',
+      current: state.perfectStreak > 0 ? 1 : 0,
+      target: 1
+    },
+    {
+      icon: '🎯',
+      title: 'Bom desempenho',
+      desc: 'Tenha média geral igual ou maior que 70%.',
+      current: avgScore,
+      target: 70
+    },
+    {
+      icon: '👑',
+      title: 'Veterano',
+      desc: 'Alcance o nível 5 no FisioQuest.',
+      current: getLevelData(state.xp).level,
+      target: 5
+    }
+  ];
+
+  const unlockedCount = achievements.filter(a => a.current >= a.target).length;
+
+  const summaryEl = document.getElementById('achievementsSummary');
+  const listEl = document.getElementById('achievementsList');
+
+  summaryEl.innerHTML = `
+    <div class="achievement-kpi">
+      <strong>${unlockedCount}</strong>
+      <span>Conquistas desbloqueadas</span>
+    </div>
+    <div class="achievement-kpi">
+      <strong>${achievements.length - unlockedCount}</strong>
+      <span>Conquistas restantes</span>
+    </div>
+  `;
+
+  listEl.innerHTML = achievements.map(item => {
+    const unlocked = item.current >= item.target;
+    const pct = Math.min(100, Math.round((item.current / item.target) * 100));
+
+    return `
+      <div class="achievement-card ${unlocked ? 'unlocked' : 'locked'}">
+        <div class="achievement-icon">${item.icon}</div>
+        <div class="achievement-content">
+          <div class="achievement-top">
+            <div class="achievement-title">${item.title}</div>
+            <div class="achievement-status ${unlocked ? 'unlocked' : 'locked'}">
+              ${unlocked ? 'Desbloqueada' : 'Em progresso'}
+            </div>
+          </div>
+          <div class="achievement-desc">${item.desc}</div>
+          <div class="achievement-progress">
+            <div class="achievement-progress-label">
+              <span>${Math.min(item.current, item.target)} / ${item.target}</span>
+              <span>${pct}%</span>
+            </div>
+            <div class="achievement-progress-bar">
+              <div class="achievement-progress-fill" style="width:${pct}%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
 // ── Init ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   updateHUD();
@@ -795,6 +901,15 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('backHomeFromRankingBtn')?.addEventListener('click', () => {
+    showScreen('homeScreen');
+  });
+
+  // Conquistas
+  document.getElementById('openAchievementsBtn')?.addEventListener('click', () => {
+    showScreen('achievementsScreen');
+  });
+
+  document.getElementById('backHomeFromAchievementsBtn')?.addEventListener('click', () => {
     showScreen('homeScreen');
   });
 
