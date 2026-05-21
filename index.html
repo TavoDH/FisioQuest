@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
 <canvas id="confettiCanvas"></canvas>
@@ -245,6 +246,7 @@
         <div class="card-actions" style="margin-top:var(--space-5)">
           <button class="btn btn-primary" id="restartModuleBtn">🔄 Repetir módulo</button>
           <button class="btn btn-ghost" id="goHomeFromResultBtn">← Escolher outro módulo</button>
+          <button class="btn btn-share" id="shareResultBtn">📤 Compartilhar resultado</button>
         </div>
       </div>
     </section>
@@ -310,6 +312,18 @@
     <button class="nav-btn" data-target="statsScreen">📊<span>Stats</span></button>
     <button class="nav-btn" data-target="resultScreen">🏅<span>Resultado</span></button>
   </nav>
+
+  <!-- Modal de saída -->
+  <div class="exit-modal-overlay" id="exitModal">
+    <div class="exit-modal-card">
+      <p class="exit-modal-title">Sair da lição?</p>
+      <p class="exit-modal-sub">Seu progresso nesta sessão será perdido.</p>
+      <div class="exit-modal-actions">
+        <button class="btn btn-primary" id="exitCancelBtn">Continuar lição</button>
+        <button class="btn btn-exit" id="exitConfirmBtn">Sair mesmo assim</button>
+      </div>
+    </div>
+  </div>
 
 </div>
 <script src="questions.js"></script>
