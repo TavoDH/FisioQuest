@@ -701,13 +701,13 @@ function renderRanking() {
   const myCourse = profile?.curso || 'Fisioterapia';
 
   const players = [
-    { name: 'Ana Lima', avatar: '🩺', course: 'Fisioterapia', xp: 1450 },
-    { name: 'Carlos M.', avatar: '🧠', course: 'Medicina', xp: 1320 },
-    { name: 'Fernanda S.', avatar: '🔬', course: 'Biomedicina', xp: 1180 },
+    { name: 'Emanuely G.', avatar: '🩺', course: 'Fisioterapia', xp: 1450 },
+    { name: 'Ana Clara L.', avatar: '🧠', course: 'Fisioterapia', xp: 1320 },
+    { name: 'Rafaela S.', avatar: '🔬', course: 'Fisioterapia', xp: 1180 },
     { name: myName, avatar: myAvatar, course: myCourse, xp: state.xp, me: true },
-    { name: 'Juliana R.', avatar: '💪', course: 'Ed. Física', xp: 760 },
-    { name: 'Pedro A.', avatar: '⚕️', course: 'Enfermagem', xp: 540 },
-    { name: 'Marina T.', avatar: '🩻', course: 'Fisioterapia', xp: 320 }
+    { name: 'Nicolle R..', avatar: '💪', course: 'Fisioterapia', xp: 760 },
+    { name: 'Kauane C.', avatar: '⚕️', course: 'Fisioterapia', xp: 540 },
+    { name: 'Fernanda A.', avatar: '🩻', course: 'Fisioterapia', xp: 320 }
   ];
 
   const sorted = [...players].sort((a, b) => b.xp - a.xp);
