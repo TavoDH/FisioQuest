@@ -508,7 +508,7 @@ function showLevelUpToast(lvl) {
     document.querySelector('.app').appendChild(toast);
   }
   toast.innerHTML = `⬆️ Subiu para <strong>Nível ${lvl.level}</strong> — ${lvl.name}!`;
-  toast.className = 'level-up-toast show';
+  toast.className = 'show';
   setTimeout(() => toast.classList.remove('show'), 3500);
 }
 
@@ -528,10 +528,10 @@ function buildReviewPanel(wrongs) {
     const item = document.createElement('div');
     item.className = 'review-item';
     item.innerHTML = `
-      <p class="review-question">${w.question}</p>
-      <p class="review-wrong">❌ Sua resposta: <em>${w.chosen}</em></p>
-      <p class="review-correct">✅ Correta: <em>${w.correct}</em></p>
-      ${w.explain ? `<p class="review-explain">💡 ${w.explain}</p>` : ''}`;
+      <p class="ri-q">${w.question}</p>
+      <p class="ri-wrong">❌ Sua resposta: <em>${w.chosen}</em></p>
+      <p class="ri-correct">✅ Correta: <em>${w.correct}</em></p>
+      ${w.explain ? `<p class="ri-explain">💡 ${w.explain}</p>` : ''}`;
     list.appendChild(item);
   });
 
@@ -577,8 +577,8 @@ function renderBarChart(history) {
   el.innerHTML = last.map(h => {
     const h_pct = h.pct;
     const color = h_pct >= 70 ? 'var(--color-primary)' : h_pct >= 50 ? 'var(--color-warning)' : 'var(--color-error)';
-    return `<div class="bar-col">
-      <div class="bar-fill" style="height:${h_pct}%;background:${color}" title="${h_pct}%"></div>
+    return `<div class="bar-wrap">
+      <div class="bar" style="height:${h_pct}%;background:${color}" title="${h_pct}%"></div>
       <span class="bar-label">${h_pct}%</span>
     </div>`;
   }).join('');
@@ -600,9 +600,12 @@ function renderModuleStats(history) {
     const avg   = Math.round(d.total / d.count);
     const color = avg >= 70 ? 'var(--color-primary)' : avg >= 50 ? 'var(--color-warning)' : 'var(--color-error)';
     return `<div class="module-stat-row">
-      <span class="msr-title">${title}</span>
-      <div class="msr-bar-track"><div class="msr-bar-fill" style="width:${avg}%;background:${color}"></div></div>
-      <span class="msr-pct">${avg}%</span>
+      <div class="module-stat-top">
+        <span class="module-stat-name">${title}</span>
+        <span class="module-stat-pct">${avg}%</span>
+      </div>
+      <div class="module-bar-bg"><div class="module-bar-fill" style="width:${avg}%;background:${color}"></div></div>
+      <span class="module-stat-sub">${d.count} sessão(ões)</span>
     </div>`;
   }).join('');
 }
@@ -617,12 +620,12 @@ function renderSessionLog(history) {
     const date = d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
     const time = d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
     const color = h.pct >= 70 ? 'var(--color-primary)' : h.pct >= 50 ? 'var(--color-warning)' : 'var(--color-error)';
-    return `<div class="session-row">
-      <div class="sr-info">
-        <span class="sr-module">${h.moduleTitle}</span>
-        <span class="sr-date">${date} · ${time}</span>
+    return `<div class="session-entry">
+      <div class="session-info">
+        <span class="session-module">${h.moduleTitle}</span>
+        <span class="session-date">${date} · ${time}</span>
       </div>
-      <span class="sr-pct" style="color:${color}">${h.pct}%</span>
+      <span class="session-badge" style="color:${color}">${h.pct}%</span>
     </div>`;
   }).join('');
 }
