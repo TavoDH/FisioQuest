@@ -618,7 +618,8 @@ main{padding:0 var(--space-4) var(--space-10);flex:1}
   gap:var(--space-3);
   min-width:0;
   flex:1;
-  overflow:hid
+   overflow:hidden;
+}
 
 /* ===================== MODAL DE SAÍDA ===================== */
 .exit-modal-overlay {
