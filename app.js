@@ -854,6 +854,124 @@ function renderAchievements() {
   }).join('');
 }
 
+function exportReport() {
+  const profile = loadProfile();
+  const history = loadHistory();
+  const name = profile?.nome || 'Estudante';
+  const course = profile?.curso || 'Fisioterapia';
+  const sessions = history.length;
+  const avgScore = sessions
+    ? Math.round(history.reduce((sum, h) => sum + h.pct, 0) / sessions)
+    : 0;
+  const totalCorrect = history.reduce((sum, h) => sum + (h.correct || 0), 0);
+  const totalQuestions = history.reduce((sum, h) => sum + (h.total || 0), 0);
+  const levelData = getLevelData(state.xp);
+
+  const rows = history.slice(-20).reverse().map((h, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${h.area || '—'}</td>
+      <td>${h.module || '—'}</td>
+      <td>${h.correct ?? '—'} / ${h.total ?? '—'}</td>
+      <td>${h.pct ?? '—'}%</td>
+      <td>${h.xp ?? '—'} XP</td>
+    </tr>
+  `).join('');
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="UTF-8">
+      <title>Relatório FisioQuest — ${name}</title>
+      <style>
+        *{ box-sizing:border-box; margin:0; padding:0; }
+        body{ font-family:'Segoe UI',Arial,sans-serif; color:#1a1a1a; padding:40px; max-width:800px; margin:0 auto; }
+        h1{ font-size:22px; color:#01696f; margin-bottom:4px; }
+        .subtitle{ font-size:13px; color:#666; margin-bottom:28px; }
+        .section{ margin-bottom:28px; }
+        .section h2{ font-size:14px; font-weight:800; color:#01696f; text-transform:uppercase; letter-spacing:.05em; border-bottom:2px solid #01696f; padding-bottom:6px; margin-bottom:14px; }
+        .kpis{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:28px; }
+        .kpi{ background:#f5f5f3; border-radius:10px; padding:16px; text-align:center; }
+        .kpi strong{ display:block; font-size:22px; color:#01696f; margin-bottom:4px; }
+        .kpi span{ font-size:11px; color:#666; }
+        table{ width:100%; border-collapse:collapse; font-size:12px; }
+        th{ background:#01696f; color:#fff; padding:8px 10px; text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.04em; }
+        td{ padding:8px 10px; border-bottom:1px solid #e5e5e5; color:#333; }
+        tr:last-child td{ border-bottom:none; }
+        tr:nth-child(even) td{ background:#f9f9f9; }
+        .footer{ margin-top:32px; font-size:11px; color:#999; text-align:center; border-top:1px solid #e5e5e5; padding-top:16px; }
+        @media print{
+          body{ padding:20px; }
+          button{ display:none; }
+        }
+      </style>
+    </head>
+    <body>
+      <h1>📊 Relatório de Desempenho — FisioQuest</h1>
+      <div class="subtitle">Gerado em ${new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' })} · ${name} · ${course}</div>
+
+      <div class="kpis">
+        <div class="kpi">
+          <strong>${state.xp}</strong>
+          <span>XP Total</span>
+        </div>
+        <div class="kpi">
+          <strong>Nível ${levelData.level}</strong>
+          <span>${levelData.title || 'Estudante'}</span>
+        </div>
+        <div class="kpi">
+          <strong>${sessions}</strong>
+          <span>Sessões realizadas</span>
+        </div>
+        <div class="kpi">
+          <strong>${avgScore}%</strong>
+          <span>Média de acertos</span>
+        </div>
+        <div class="kpi">
+          <strong>${totalCorrect}</strong>
+          <span>Questões corretas</span>
+        </div>
+        <div class="kpi">
+          <strong>${totalQuestions}</strong>
+          <span>Questões respondidas</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Histórico de sessões (últimas 20)</h2>
+        ${sessions === 0
+          ? '<p style="color:#999;font-size:13px;">Nenhuma sessão registrada ainda.</p>'
+          : `<table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Área</th>
+                  <th>Módulo</th>
+                  <th>Acertos</th>
+                  <th>%</th>
+                  <th>XP</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>`
+        }
+      </div>
+
+      <div class="footer">
+        FisioQuest · Protótipo Educacional · TCC — Rodrigo Otávio Safraiter · Unifateb · Telêmaco Borba, PR
+      </div>
+    </body>
+    </html>
+  `;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(() => win.print(), 600);
+}
+
 // ── Init ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   updateHUD();
@@ -921,6 +1039,9 @@ document.getElementById('openAboutBtn')?.addEventListener('click', () => {
 document.getElementById('backHomeFromAboutBtn')?.addEventListener('click', () => {
   showScreen('homeScreen');
 });
+
+   // Relatório
+document.getElementById('exportReportBtn')?.addEventListener('click', exportReport);
    
   // Nav inferior — pede confirmação se tentar sair durante lição
   document.querySelectorAll('.nav-btn').forEach(btn => {
