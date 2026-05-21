@@ -213,7 +213,6 @@ function startLesson(areaKey, moduleId) {
 function isLessonInProgress() {
   return state.screen === 'lessonScreen' &&
          state.questions.length > 0 &&
-         state.qIndex > 0 &&
          state.qIndex < state.questions.length;
 }
 
