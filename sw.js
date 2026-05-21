@@ -1,4 +1,4 @@
-const CACHE = 'fisioquest-v1';
+const CACHE = 'fisioquest-v2';
 const ASSETS = [
   './',
   './index.html',
